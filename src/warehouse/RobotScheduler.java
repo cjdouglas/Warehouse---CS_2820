@@ -8,6 +8,7 @@ import java.util.LinkedList;
  *         Group A2 - RobotScheduler class
  */
 public class RobotScheduler {
+	// Instance Variables
 	private LinkedList<Robot> robotList;
 	private Floor floor;
 
@@ -114,7 +115,7 @@ public class RobotScheduler {
 	 * @param r
 	 *            The robot to be moved.
 	 */
-	private void moveTowardTarget(Robot r) {
+	void moveTowardTarget(Robot r) {
 		int[] currentPos = r.getCurrentPosition(), target = r.getTarget();
 
 		if (currentPos[0] < target[0]) { // RIGHT
@@ -173,7 +174,7 @@ public class RobotScheduler {
 	 *            The location to be checked.
 	 * @return Returns true if no robot is at the location, and false otherwise.
 	 */
-	private boolean notOccupied(int[] location) {
+	boolean notOccupied(int[] location) {
 		for (Robot r : robotList) {
 			if (r.getCurrentPosition().equals(location)) {
 				return false;
