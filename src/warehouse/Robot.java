@@ -68,14 +68,13 @@ public class Robot {
 	}
 
 	/**
-	 * Switches the robot's busy variable between true and false.
+	 * Sets the robot's busy value to the given parameter val.
+	 * 
+	 * @param val
+	 *            The busy status of the robot.
 	 */
-	protected void toggleBusy() {
-		if (this.busy) {
-			this.busy = false;
-		} else {
-			this.busy = true;
-		}
+	protected void setBusy(boolean val) {
+		this.busy = val;
 	}
 
 	/**

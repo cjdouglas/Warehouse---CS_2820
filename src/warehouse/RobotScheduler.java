@@ -9,7 +9,6 @@ import java.util.LinkedList;
  */
 public class RobotScheduler {
 	private LinkedList<Robot> robotList;
-	
 	private Floor floor;
 
 	/**
@@ -17,45 +16,56 @@ public class RobotScheduler {
 	 * 
 	 * @param f
 	 *            The floor of the warehouse to be navigated.
+	 * @param numBots
+	 *            The number of robots to be created.
 	 */
-	public RobotScheduler(Floor f) {
+	public RobotScheduler(Floor f, int numBots) {
 		this.floor = f;
 		this.robotList = new LinkedList<Robot>();
-		createRobots();
+		createRobots(numBots);
 	}
 
-	// NOTE: THIS DOES NOT HANDLE THE EVENT THAT A ROBOT ALREADY HAS THE SHELF
-	// AT THIS TIME
 	/**
-	 * Assigns an order to the robots by finding shelves and making robots grab
-	 * them.
+	 * Returns the list of robots in the warehouse. Made for testing purposes.
 	 * 
-	 * @param o
-	 *            The order to be assigned.
+	 * @return The list of robots in the warehouse.
 	 */
-	public void assignOrder(Order o) {
-		LinkedList<int[]> shelvesNeeded = findShelvesNeeded(o);
+	public LinkedList<Robot> getRobotList() {
+		return this.robotList;
+	}
 
-		// Find the first available robot
-		// while (!shelvesNeeded.isEmpty()) {
-		for (int[] shelf : shelvesNeeded) {
-			for (Robot r : robotList) {
-				// If we find a robot that is charged and not busy, make it
-				// get the shelf
-				if (!r.isBusy() && r.isCharged()) {
-					r.setTarget(shelf);
-					r.toggleBusy();
-					shelvesNeeded.remove(shelf);
-				} else if (!r.isCharged()) {
-					// If r isn't busy or charged, make it recharge
-					if (!r.isBusy() && !r.isCharged()) {
-						r.setTarget(this.floor.getChargeLocation());
-						r.toggleBusy();
+	// TODO handle the case that all robots are occupied at the moment
+	/**
+	 * Assigns the shelves to robots
+	 * 
+	 * @param shelvesNeeded
+	 */
+	public void assignOrder(LinkedList<Shelf> shelvesNeeded) {
+		for (Shelf s : shelvesNeeded) {
+			if (robotHasShelf(s)) {
+				for (Robot r : robotList) {
+					// Find the robot that has the shelf and make it go to the
+					// pick station
+					if (r.getCurrentShelf().equals(s)) {
+						r.setTarget(floor.getPickLocation());
+						r.setBusy(true);
+						shelvesNeeded.remove(s);
+					}
+				}
+			} else {
+				for (Robot r : robotList) {
+					if (r.getCurrentShelf().equals(null)) {
+						if (r.isCharged() && !r.isBusy()) {
+							// if the robot is charged and not busy, make it get
+							// the shelf.
+							r.setTarget(this.floor.getShelfLocation(s));
+							r.setBusy(true);
+							shelvesNeeded.remove(s);
+						}
 					}
 				}
 			}
 		}
-		// }
 	}
 
 	/**
@@ -64,24 +74,39 @@ public class RobotScheduler {
 	 */
 	public void advanceRobots() {
 		for (Robot r : robotList) {
-			int[] currentPos = r.getCurrentPosition(), target = r.getTarget();
+			int[] currentPos = r.getCurrentPosition(), targetPos = r.getTarget();
 
-			if (!currentPos.equals(target)) {
+			if (!currentPos.equals(targetPos)) {
+				// If the robot isn't at it's target, make it move.
 				moveTowardTarget(r);
-			} else if (currentPos.equals(target)) {
-				if (target.equals(this.floor.getChargeLocation())) {
+			} else { // If the robot is at the target
+				if (targetPos.equals(this.floor.getChargeLocation())) {
+					// If at a charge location, recharge the robot and mark it
+					// not busy, then move it away from the charge location.
 					r.recharge();
-					r.toggleBusy();
-				} else if (target.equals(this.floor.getPickLocation())) {
+					r.setBusy(false);
+					int[] curPos = r.getCurrentPosition().clone();
+					curPos[1] += 2;
+					r.setTarget(curPos);
+				} else if (targetPos.equals(this.floor.getPickLocation())) {
+					// Once we reach the pick station, don't move, and set your
+					// new target to an empty space.
 					r.setTarget(this.floor.getEmptyShelfLocation());
+				} else if (targetPos.equals(this.floor.getEmptyShelfLocation())) {
+					// When the robot drops the shelf, make it go recharge.
+					r.dropShelf();
+					r.setTarget(this.floor.getChargeLocation());
+					r.setBusy(true);
+				} else if (this.floor.shelfAt(targetPos) && r.isBusy()) {
+					// If the robot reaches it's target, there's a shelf there,
+					// and it's busy, make it grab the shelf.
+					r.grabShelf(this.floor.getShelfAt(targetPos));
 				}
 			}
 		}
-
 	}
 
-	// NOTE: MUST BE UPDATED TO MAKE USE OF HIGHWAYS/AVOID SHELVES WHEN
-	// NECESSARY
+	// TODO Update movement to make use of highways and shelving areas.
 	/**
 	 * Determines which direction the robot should move, and moves there if not
 	 * occupied.
@@ -89,7 +114,7 @@ public class RobotScheduler {
 	 * @param r
 	 *            The robot to be moved.
 	 */
-	public void moveTowardTarget(Robot r) {
+	private void moveTowardTarget(Robot r) {
 		int[] currentPos = r.getCurrentPosition(), target = r.getTarget();
 
 		if (currentPos[0] < target[0]) { // RIGHT
@@ -126,11 +151,29 @@ public class RobotScheduler {
 	}
 
 	/**
+	 * Checks if a robot is holding the given shelf.
+	 * 
+	 * @param s
+	 *            The shelf that needs to be found.
+	 * @return Returns true if a robot is holding the shelf, and false
+	 *         otherwise.
+	 */
+	private boolean robotHasShelf(Shelf s) {
+		for (Robot r : robotList) {
+			if (r.getCurrentShelf().equals(s)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * @param location
 	 *            The location to be checked.
 	 * @return Returns true if no robot is at the location, and false otherwise.
 	 */
-	public boolean notOccupied(int[] location) {
+	private boolean notOccupied(int[] location) {
 		for (Robot r : robotList) {
 			if (r.getCurrentPosition().equals(location)) {
 				return false;
@@ -140,58 +183,16 @@ public class RobotScheduler {
 	}
 
 	/**
-	 * Finds the shelves necessary to fulfill the given order.
-	 * 
-	 * @param o
-	 *            The order to be fulfilled.
-	 * @return A LinkedList of shelf coordinate values.
-	 */
-	public LinkedList<int[]> findShelvesNeeded(Order o) {
-		LinkedList<int[]> shelvesNeeded = new LinkedList<int[]>();
-		for (Item i : o.items) {
-			int[] shelfPos = findShelfByItem(i);
-			if (!shelvesNeeded.contains(shelfPos)) {
-				shelvesNeeded.add(shelfPos);
-			} else {
-				// prioritize the shelf
-			}
-		}
-		return shelvesNeeded;
-	}
-
-	/**
-	 * Finds the coordinates of the shelf that contains the given item.
-	 * 
-	 * @param i
-	 *            The item to be found on a shelf.
-	 * @return The coordinates of the shelf that contains the given item.
-	 */
-	public int[] findShelfByItem(Item i) {
-		for (Robot r : robotList) {
-			if (r.getCurrentShelf().contains(i)) {
-				return r.getCurrentPosition();
-			}
-		}
-		return this.floor.find(i);
-	}
-
-	/**
 	 * Creates all of the robots for the warehouse. For use in the constructor
 	 * only.
+	 * 
+	 * @param numBots
+	 *            The number of robots to be created.
 	 */
-	public void createRobots() {
-		for (int i = 0; i < 5; ++i) {
+	private void createRobots(int numBots) {
+		for (int i = 0; i < numBots; ++i) {
 			int[] robotPos = { i, 0 };
 			robotList.add(new Robot(robotPos));
 		}
-	}
-
-	/**
-	 * Returns the list of robots in the warehouse. Made for testing purposes.
-	 * 
-	 * @return The list of robots in the warehouse.
-	 */
-	public LinkedList<Robot> getRobotList() {
-		return this.robotList;
 	}
 }
