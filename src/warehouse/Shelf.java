@@ -35,10 +35,16 @@ public class Shelf {
 	 * Add item objects onto the shelf
 	 */
 	protected void addItem(Item item) {
-		if (item.getWeight() + shelfWeight <= maxWeight - shelfWeight) {
+		if (willFit(item)) {
 			ItemsOnShelf.add(item);
 			item.numStocked++;
 			shelfWeight = shelfWeight + item.getWeight();
+			System.out.println("Adding " + item.getName() + " to shelf ");
+
+			// if (item.getWeight() + shelfWeight <= maxWeight) {
+			// ItemsOnShelf.add(item);
+			// item.numStocked++;
+			// shelfWeight = shelfWeight + item.getWeight();
 		} else {
 			System.out.println("Shelf if full!");
 		}
@@ -76,6 +82,38 @@ public class Shelf {
 	}
 
 	/*
+	 * @return Returns shelf number
+	 */
+	protected int getShelfNumber() {
+		System.out.println("Shelf number " + shelfNumber);
+		return shelfNumber;
+	}
+
+	/*
+	 * @return Returns whether a shelf is full or not
+	 */
+	protected boolean isFull() {
+		if (shelfWeight < 100 && shelfWeight > 0) {
+			System.out.println("Not full");
+			return false;
+		}
+		System.out.println("Full");
+		return true;
+	}
+
+	/*
+	 * @return boolean Returns whether an item will fit onto the shelf
+	 */
+	protected boolean willFit(Item item) {
+		if (shelfWeight + item.getWeight() <= maxWeight) {
+			System.out.println("Item fits");
+			return true;
+		}
+		System.out.println("Item does not fit");
+		return false;
+	}
+
+	/*
 	 * Display items currently on shelf
 	 */
 	protected void displayShelf() {
@@ -87,16 +125,25 @@ public class Shelf {
 
 	public static void main(String[] args) {
 		Item item1 = new Item(0, "hat", 5.00, 55);
-		Item item2 = new Item(1, "shirt", 7.25, 3);
+		Item item2 = new Item(1, "shirt", 7.25, 45);
 		Item item3 = new Item(2, "pants", 9.00, 6);
 
 		Shelf shelf0 = new Shelf(0);
-		Shelf shelf1 = new Shelf(0);
+		Shelf shelf1 = new Shelf(1);
+		Shelf shelf2 = new Shelf(2);
 
 		shelf0.addItem(item1);
 		shelf0.addItem(item1);
 		shelf0.displayShelf();
 		shelf0.getShelfWeight();
+		shelf0.isFull();
+		shelf0.willFit(item2);
+		shelf0.addItem(item2);
+		shelf0.isFull();
+		shelf0.willFit(item3);
+		shelf0.getShelfNumber();
+		shelf1.getShelfNumber();
+		shelf2.getShelfNumber();
 
 	}
 
