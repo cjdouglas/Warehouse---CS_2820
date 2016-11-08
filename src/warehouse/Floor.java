@@ -49,7 +49,7 @@ public class Floor {
 	}
 	
 	public int[] getShelfLocation(Shelf shelf) {
-		return shelfLocations.get(shelf.getId()); // Assuming shelves are numbered 0 -> n - 1
+		return shelfLocations.get(shelf.shelfNumber); // Assuming shelves are numbered 0 -> n - 1
 	}
 	
 	public int[] getChargeLocation() {
