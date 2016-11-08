@@ -98,7 +98,7 @@ public class RobotScheduler {
 					r.dropShelf();
 					r.setTarget(this.floor.getChargeLocation());
 					r.setBusy(true);
-				} else if (this.floor.shelfAt(targetPos) && r.isBusy()) {
+				} else if (!this.floor.getShelfAt(targetPos).equals(null) && r.isBusy()) {
 					// If the robot reaches it's target, there's a shelf there,
 					// and it's busy, make it grab the shelf.
 					r.grabShelf(this.floor.getShelfAt(targetPos));
@@ -115,7 +115,7 @@ public class RobotScheduler {
 	 * @param r
 	 *            The robot to be moved.
 	 */
-	void moveTowardTarget(Robot r) {
+	protected void moveTowardTarget(Robot r) {
 		int[] currentPos = r.getCurrentPosition(), target = r.getTarget();
 
 		if (currentPos[0] < target[0]) { // RIGHT
@@ -159,7 +159,7 @@ public class RobotScheduler {
 	 * @return Returns true if a robot is holding the shelf, and false
 	 *         otherwise.
 	 */
-	private boolean robotHasShelf(Shelf s) {
+	protected boolean robotHasShelf(Shelf s) {
 		for (Robot r : robotList) {
 			if (r.getCurrentShelf().equals(s)) {
 				return true;
@@ -174,7 +174,7 @@ public class RobotScheduler {
 	 *            The location to be checked.
 	 * @return Returns true if no robot is at the location, and false otherwise.
 	 */
-	boolean notOccupied(int[] location) {
+	protected boolean notOccupied(int[] location) {
 		for (Robot r : robotList) {
 			if (r.getCurrentPosition().equals(location)) {
 				return false;
@@ -190,7 +190,7 @@ public class RobotScheduler {
 	 * @param numBots
 	 *            The number of robots to be created.
 	 */
-	private void createRobots(int numBots) {
+	protected void createRobots(int numBots) {
 		for (int i = 0; i < numBots; ++i) {
 			int[] robotPos = { i, 0 };
 			robotList.add(new Robot(robotPos));

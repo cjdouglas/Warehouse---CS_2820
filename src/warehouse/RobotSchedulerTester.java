@@ -9,7 +9,7 @@ public class RobotSchedulerTester {
 	 */
 	@Test
 	public void runRobotSchedulerTests() {
-		RobotScheduler rs = new RobotScheduler(new Floor(), 1);
+		RobotScheduler rs = new RobotScheduler(new Floor(1), 1);
 
 		// Test createRobots
 		int i = 0;

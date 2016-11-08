@@ -39,7 +39,7 @@ public class RobotTester {
 		r.moveUp();
 		Assert.assertEquals("Y Coordinates are not equal: ", testPos[1], r.getCurrentPosition()[1]);
 
-		Shelf testShelf = new Shelf(new LinkedList<Item>());
+		Shelf testShelf = new Shelf(5);
 
 		// Test grabShelf(Shelf s)
 		r.grabShelf(testShelf);
