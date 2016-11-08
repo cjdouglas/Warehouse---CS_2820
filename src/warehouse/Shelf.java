@@ -144,6 +144,9 @@ public class Shelf {
 		shelf0.getShelfNumber();
 		shelf1.getShelfNumber();
 		shelf2.getShelfNumber();
+		shelf0.displayShelf();
+		shelf0.removeItem(item1);
+		shelf0.displayShelf();
 
 	}
 

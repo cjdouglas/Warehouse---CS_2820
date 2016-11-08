@@ -1,5 +1,9 @@
 package warehouse;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 public class Item {
 	final int itemID;
 	public String name;
@@ -50,4 +54,26 @@ public class Item {
 		this.price = newPrice;
 	}
 
+	public static void main(String[] args) {
+		String fileName = "ItemsList.csv";
+		File file = new File(fileName);
+		try {
+			Scanner inputStream = new Scanner(file);
+			inputStream.next(); // Disregard first line
+			while (inputStream.hasNext()) {
+				String data = inputStream.next();
+				// data = data.replaceAll("\\s+", "");
+				String[] ItemParams = data.split(",");
+				int itemID = Integer.parseInt(ItemParams[0]);
+				String name = ItemParams[1];
+				double price = Double.parseDouble(ItemParams[2]);
+				double weight = Double.parseDouble(ItemParams[3]);
+				// System.out.println(ItemParams[0]);
+			}
+			inputStream.close();
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 }
