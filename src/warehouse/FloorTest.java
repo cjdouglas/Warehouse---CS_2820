@@ -6,14 +6,14 @@ public class FloorTest {
 
 	@Test
 	public void RunFloorTests() {
-		int numShelves = 8;
+		int numShelves = 10;
 		Floor floor = new Floor(numShelves);
 		
-		Assert.assertArrayEquals(new int[] {0, 0}, floor.getChargeLocation());
-		Assert.assertArrayEquals(new int[] {floor.getWidth() - 1, 0}, floor.getPickLocation());
+		Assert.assertArrayEquals(new int[] {10, 0}, floor.getChargeLocation());
+		Assert.assertArrayEquals(new int[] {0, 0}, floor.getPickLocation());
 		
-		Assert.assertEquals(numShelves / 2, floor.getWidth());
-		Assert.assertEquals(numShelves / 2 + 1, floor.getHeight());
+		Assert.assertEquals(6, floor.getWidth());
+		Assert.assertEquals(numShelves / 2 + 6, floor.getHeight());
 	}
 	
 }
