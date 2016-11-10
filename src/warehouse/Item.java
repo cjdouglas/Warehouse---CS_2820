@@ -4,6 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+/**
+ * 
+ * @author sethpratt
+ *
+ */
+
 public class Item {
 	final int itemID;
 	public String name;
