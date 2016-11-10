@@ -25,12 +25,12 @@ public class MasterController {
 	MasterController(String inventoryFile, int numRobots){
 		MI = new MockInventory(inventoryFile);
 		F = new Floor(MockInventory.getNumShelves());
-		RS = new RobotSheduler(F ,numRobots);
+		RS = new RobotScheduler(F ,numRobots);
 	}
 	
-	public class MockInventory {
+	public static class MockInventory {
 		MockInventory(String filename){}
-		public int getNumShelves(){return 30;}
+		public static int getNumShelves(){return 30;}
 	}
 	
 	public class MockVisualizer{
