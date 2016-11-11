@@ -1,6 +1,7 @@
 package warehouse;
 
 import java.util.LinkedList;
+import java.awt.Point;
 
 /**
  * @author Ben East
@@ -13,6 +14,7 @@ public class RobotScheduler {
 	private Floor floor;
 
 	/**
+	 * @author Ben East
 	 * Constructs a new robotScheduler object.
 	 * 
 	 * @param f
@@ -27,6 +29,7 @@ public class RobotScheduler {
 	}
 
 	/**
+	 * @author Ben East
 	 * Returns the list of robots in the warehouse. Made for testing purposes.
 	 * 
 	 * @return The list of robots in the warehouse.
@@ -37,6 +40,7 @@ public class RobotScheduler {
 
 	// TODO handle the case that all robots are occupied at the moment
 	/**
+	 * @author Ben East
 	 * Assigns the shelves to robots
 	 * 
 	 * @param shelvesNeeded
@@ -70,12 +74,13 @@ public class RobotScheduler {
 	}
 
 	/**
+	 * @author Ben East
 	 * Advances each robot 1 step toward their target, and makes them perform an
 	 * action if they are at their target.
 	 */
 	public void advanceRobots() {
 		for (Robot r : robotList) {
-			int[] currentPos = r.getCurrentPosition(), targetPos = r.getTarget();
+			Point currentPos = r.getCurrentPosition(), targetPos = r.getTarget();
 
 			if (!currentPos.equals(targetPos)) {
 				// If the robot isn't at it's target, make it move.
@@ -86,8 +91,8 @@ public class RobotScheduler {
 					// not busy, then move it away from the charge location.
 					r.recharge();
 					r.setBusy(false);
-					int[] curPos = r.getCurrentPosition().clone();
-					curPos[1] += 2;
+					Point curPos = r.getCurrentPosition();
+					r.moveUp();
 					r.setTarget(curPos);
 				} else if (targetPos.equals(this.floor.getPickLocation())) {
 					// Once we reach the pick station, don't move, and set your
@@ -109,6 +114,7 @@ public class RobotScheduler {
 
 	// TODO Update movement to make use of highways and shelving areas.
 	/**
+	 * @author Ben East
 	 * Determines which direction the robot should move, and moves there if not
 	 * occupied.
 	 * 
@@ -116,35 +122,35 @@ public class RobotScheduler {
 	 *            The robot to be moved.
 	 */
 	protected void moveTowardTarget(Robot r) {
-		int[] currentPos = r.getCurrentPosition(), target = r.getTarget();
+		Point currentPos = r.getCurrentPosition(), target = r.getTarget();
 
-		if (currentPos[0] < target[0]) { // RIGHT
-			int[] potentialLocation = { currentPos[0] + 1, currentPos[1] };
-			if (notOccupied(potentialLocation) && currentPos[0] != this.floor.getWidth()) {
+		if (currentPos.getX() < target.getX()) { // RIGHT
+			Point potentialLocation = new Point((int) currentPos.getX() + 1, (int) currentPos.getY());
+			if (notOccupied(potentialLocation) && currentPos.getX() != this.floor.getWidth()) {
 				r.moveRight();
 				return;
 			}
 		}
 
-		if (currentPos[0] > target[0]) { // LEFT
-			int[] potentialLocation = { currentPos[0] - 1, currentPos[1] };
-			if (notOccupied(potentialLocation) && currentPos[0] != 0) {
+		if (currentPos.getX() > target.getX()) { // LEFT
+			Point potentialLocation = new Point((int) currentPos.getX() - 1, (int) currentPos.getY());
+			if (notOccupied(potentialLocation) && currentPos.getX() != 0) {
 				r.moveLeft();
 				return;
 			}
 		}
 
-		if (currentPos[1] < target[1]) { // UP
-			int[] potentialLocation = { currentPos[0], currentPos[1] + 1 };
-			if (notOccupied(potentialLocation) && currentPos[1] != this.floor.getHeight()) {
+		if (currentPos.getY() < target.getY()) { // UP
+			Point potentialLocation = new Point((int) currentPos.getX(), (int) currentPos.getY() + 1);
+			if (notOccupied(potentialLocation) && currentPos.getY() != this.floor.getHeight()) {
 				r.moveUp();
 				return;
 			}
 		}
 
-		if (currentPos[1] > target[1]) { // DOWN
-			int[] potentialLocation = { currentPos[0], currentPos[1] - 1 };
-			if (notOccupied(potentialLocation) && currentPos[1] != 0) {
+		if (currentPos.getY() > target.getY()) { // DOWN
+			Point potentialLocation = new Point((int) currentPos.getX(), (int) currentPos.getY() - 1);
+			if (notOccupied(potentialLocation) && currentPos.getY() != 0) {
 				r.moveDown();
 				return;
 			}
@@ -152,6 +158,7 @@ public class RobotScheduler {
 	}
 
 	/**
+	 * @author Ben East
 	 * Checks if a robot is holding the given shelf.
 	 * 
 	 * @param s
@@ -170,11 +177,12 @@ public class RobotScheduler {
 	}
 
 	/**
+	 * @author Ben East
 	 * @param location
 	 *            The location to be checked.
 	 * @return Returns true if no robot is at the location, and false otherwise.
 	 */
-	protected boolean notOccupied(int[] location) {
+	protected boolean notOccupied(Point location) {
 		for (Robot r : robotList) {
 			if (r.getCurrentPosition().equals(location)) {
 				return false;
@@ -184,6 +192,7 @@ public class RobotScheduler {
 	}
 
 	/**
+	 * @author Ben East
 	 * Creates all of the robots for the warehouse. For use in the constructor
 	 * only.
 	 * 
@@ -192,7 +201,7 @@ public class RobotScheduler {
 	 */
 	protected void createRobots(int numBots) {
 		for (int i = 0; i < numBots; ++i) {
-			int[] robotPos = { i, 0 };
+			Point robotPos = new Point(i, 0);
 			robotList.add(new Robot(robotPos));
 		}
 	}

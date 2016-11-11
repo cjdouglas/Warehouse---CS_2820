@@ -1,43 +1,53 @@
 package warehouse;
 
+import java.awt.Point;
 import java.util.LinkedList;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * 
+ * @author Ben East
+ * 
+ * Runs tests on the robot class
+ *
+ */
+@SuppressWarnings("deprecation")
 public class RobotTester {
 
 	/**
+	 * @author Ben East
 	 * Runs tests on the Robot class
 	 */
 	@Test
 	public void runRobotTests() {
-		int[] startPos = { 0, 0 };
+		Point startPos = new Point(0, 0);
 		Robot r = new Robot(startPos);
-		int[] testPos = { 1, 1 };
+		Point testPos = new Point(1, 1);
 
 		// Test getCurrentPosition()
-		Assert.assertEquals("X coordinates are not equal: ", testPos[0], r.getCurrentPosition()[0]);
-		Assert.assertEquals("Y Coordinates are not equal: ", testPos[1], r.getCurrentPosition()[1]);
+		Assert.assertEquals("X coordinates are not equal: ", testPos.getX(), r.getCurrentPosition().getX());
+		Assert.assertEquals("Y Coordinates are not equal: ", testPos.getY(), r.getCurrentPosition().getY());
 
 		// Test moveRight()
-		testPos[0]++;
+		testPos.setLocation(testPos.getX() + 1, testPos.getY());
 		r.moveRight();
-		Assert.assertEquals("X coordinates are not equal: ", testPos[0], r.getCurrentPosition()[0]);
+		Assert.assertEquals("X coordinates are not equal: ", testPos.getX(), r.getCurrentPosition().getX());
 
 		// Test moveLeft()
-		testPos[0]--;
+		testPos.setLocation(testPos.getX() - 1, testPos.getY());
 		r.moveLeft();
-		Assert.assertEquals("X coordinates are not equal: ", testPos[0], r.getCurrentPosition()[0]);
+		Assert.assertEquals("X coordinates are not equal: ", testPos.getX(), r.getCurrentPosition().getX());
 
 		// Test moveDown()
-		testPos[1]--;
+		testPos.setLocation(testPos.getX(), testPos.getY() - 1);
 		r.moveDown();
-		Assert.assertEquals("Y Coordinates are not equal: ", testPos[1], r.getCurrentPosition()[1]);
+		Assert.assertEquals("Y Coordinates are not equal: ", testPos.getY(), r.getCurrentPosition().getY());
 
 		// Test moveUp()
-		testPos[1]++;
+		testPos.setLocation(testPos.getX(), testPos.getY() + 1);
 		r.moveUp();
-		Assert.assertEquals("Y Coordinates are not equal: ", testPos[1], r.getCurrentPosition()[1]);
+		Assert.assertEquals("Y Coordinates are not equal: ", testPos.getY(), r.getCurrentPosition().getY());
 
 		Shelf testShelf = new Shelf(5);
 

@@ -1,5 +1,7 @@
 package warehouse;
 
+import java.awt.Point;
+
 /**
  * @author Ben East
  *
@@ -7,19 +9,20 @@ package warehouse;
  */
 public class Robot {
 	// Instance variables
-	private int[] currentPosition;
-	private int[] targetPosition;
+	private Point currentPosition;
+	private Point targetPosition;
 	private Shelf currentShelf;
 	private boolean charged;
 	private boolean busy;
 
 	/**
+	 * @author Ben East
 	 * Constructs a new robot object.
 	 * 
 	 * @param position
 	 *            The current position of the new robot.
 	 */
-	public Robot(int[] position) {
+	public Robot(Point position) {
 		this.currentPosition = position;
 		this.targetPosition = null;
 		this.charged = true;
@@ -27,13 +30,15 @@ public class Robot {
 	}
 
 	/**
+	 * @author Ben East
 	 * @return Returns the currentPosition (x, y) coordinate pair for the robot
 	 */
-	protected int[] getCurrentPosition() {
+	protected Point getCurrentPosition() {
 		return this.currentPosition;
 	}
 
 	/**
+	 * @author Ben East
 	 * @return Returns the shelf that the robot is currently holding, or null if
 	 *         the robot isn't holding a shelf.
 	 */
@@ -46,6 +51,7 @@ public class Robot {
 	}
 
 	/**
+	 * @author Ben East
 	 * Makes the robot "grab" a shelf from the warehouse.
 	 * 
 	 * @param s
@@ -56,6 +62,7 @@ public class Robot {
 	}
 
 	/**
+	 * @author Ben East
 	 * @return Returns true if the robot is holding a shelf, and false
 	 *         otherwise.
 	 */
@@ -68,6 +75,7 @@ public class Robot {
 	}
 
 	/**
+	 * @author Ben East
 	 * Sets the robot's busy value to the given parameter val.
 	 * 
 	 * @param val
@@ -78,6 +86,7 @@ public class Robot {
 	}
 
 	/**
+	 * @author Ben East
 	 * @return Returns true if the robot is busy, and false otherwise.
 	 */
 	protected boolean isBusy() {
@@ -85,6 +94,7 @@ public class Robot {
 	}
 
 	/**
+	 * @author Ben East
 	 * Sets the robot's charged value to true.
 	 */
 	protected void recharge() {
@@ -92,6 +102,7 @@ public class Robot {
 	}
 
 	/**
+	 * @author Ben East
 	 * @return Returns true if the robot is charged, and false otherwise.
 	 */
 	protected boolean isCharged() {
@@ -99,6 +110,7 @@ public class Robot {
 	}
 
 	/**
+	 * @author Ben East
 	 * Makes the robot "drop" it's shelf at it's current position.
 	 * 
 	 * @return Returns the shelf that the robot was previously carrying.
@@ -120,49 +132,55 @@ public class Robot {
 	}
 
 	/**
+	 * @author Ben East
 	 * Sets the robot's target position to the given target coordinates.
 	 * 
 	 * @param target
 	 *            The coordinates the robot should move toward.
 	 */
-	protected void setTarget(int[] target) {
+	protected void setTarget(Point target) {
 		this.targetPosition = target;
 	}
 
 	/**
+	 * @author Ben East
 	 * @return Returns the current target coordinates of the robot.
 	 */
-	protected int[] getTarget() {
+	protected Point getTarget() {
 		return this.targetPosition;
 	}
 
 	/**
+	 * @author Ben East
 	 * Decrements the robot's x coordinate value to "move" it one step to the
 	 * left.
 	 */
 	protected void moveLeft() {
-		this.currentPosition[0]--;
+		this.currentPosition.setLocation(this.currentPosition.getX() - 1, this.currentPosition.getY());
 	}
 
 	/**
+	 * @author Ben East
 	 * Increments the robot's x coordinate value to "move" it one step to the
 	 * right.
 	 */
 	protected void moveRight() {
-		this.currentPosition[0]++;
+		this.currentPosition.setLocation(this.currentPosition.getX() + 1, this.currentPosition.getY());
 	}
 
 	/**
+	 * @author Ben East
 	 * Increments the robot's y coordinate value to "move" it one step up.
 	 */
 	protected void moveUp() {
-		this.currentPosition[1]++;
+		this.currentPosition.setLocation(this.currentPosition.getX(), this.currentPosition.getY() + 1);
 	}
 
 	/**
+	 * @author Ben East
 	 * Decrements the robot's y coordinate value to "move" it one step down.
 	 */
 	protected void moveDown() {
-		this.currentPosition[1]--;
+		this.currentPosition.setLocation(this.currentPosition.getX(), this.currentPosition.getY() - 1);
 	}
 }
