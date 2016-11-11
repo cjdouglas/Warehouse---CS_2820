@@ -1,5 +1,6 @@
 package warehouse;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.awt.Point;
@@ -9,7 +10,7 @@ import java.awt.Point;
  *
  *         Group A2 - RobotScheduler class
  */
-public class RobotScheduler implements Tickable {
+public class RobotScheduler implements Tickable, toVisualize {
 	// Instance Variables
 	private LinkedList<Robot> robotList;
 	private PriorityQueue<Shelf> shelvesForOrder;
@@ -25,7 +26,7 @@ public class RobotScheduler implements Tickable {
 	 *            The number of robots to be created.
 	 */
 	public RobotScheduler(Floor f, int numBots) {
-		this.floor = f;
+		floor = f;
 		this.robotList = new LinkedList<Robot>();
 		this.shelvesForOrder = new PriorityQueue<Shelf>();
 		this.shelvesForRestock = new PriorityQueue<Shelf>();
@@ -33,18 +34,27 @@ public class RobotScheduler implements Tickable {
 	}
 
 	/**
-	 * @author Ben East Returns the list of robots in the warehouse. Made for
+	 * @author Ben East
+	 * 
+	 *         Returns the list of robot locations in the warehouse. Made for
 	 *         testing/visualization purposes.
 	 * 
-	 * @return The list of robots in the warehouse.
+	 * @return The list of robot locations in the warehouse.
 	 */
-	public LinkedList<Robot> getRobotList() {
-		return this.robotList;
+	public ArrayList<Point> getRobotLocations() {
+		ArrayList<Point> robotLocations = new ArrayList<Point>();
+		for (Robot r : robotList) {
+			robotLocations.add(r.getCurrentPosition());
+		}
+
+		return robotLocations;
 	}
 
 	/**
-	 * @author Ben East Takes a new assignment of shelves, saves the list, and
-	 *         sends robots to the pick location if they're already holding it.
+	 * @author Ben East
+	 * 
+	 *         Takes a new assignment of shelves, saves the list, and sends
+	 *         robots to the pick location if they're already holding it.
 	 * 
 	 * @param shelvesNeeded
 	 */
@@ -79,7 +89,7 @@ public class RobotScheduler implements Tickable {
 		for (Robot r : this.robotList) {
 			if (r.getCurrentShelf().equals(s)) {
 				// make the robot go to the restocking area
-				r.setTarget(this.floor.getDockLocation());
+				r.setTarget(floor.getDockLocation());
 				r.setBusy(true);
 			}
 		}
@@ -96,10 +106,10 @@ public class RobotScheduler implements Tickable {
 	protected void assignShelf(Robot r) {
 		// Prioritize restock over the current order.
 		if (!this.shelvesForRestock.isEmpty()) {
-			r.setTarget(this.floor.getShelfLocation(this.shelvesForRestock.remove()));
+			r.setTarget(floor.getShelfLocation(this.shelvesForRestock.remove()));
 			r.setBusy(true);
 		} else if (!this.shelvesForOrder.isEmpty()) {
-			r.setTarget(this.floor.getShelfLocation(this.shelvesForOrder.remove()));
+			r.setTarget(floor.getShelfLocation(this.shelvesForOrder.remove()));
 			r.setBusy(true);
 		}
 	}
@@ -118,27 +128,25 @@ public class RobotScheduler implements Tickable {
 				// If the robot isn't at it's target, make it move.
 				moveTowardTarget(r);
 			} else { // If the robot is at the target
-				if (targetPos.equals(this.floor.getChargeLocation())) {
-					// If at a charge location, recharge the robot and mark it
-					// not busy, then move it away from the charge location.
+				if (targetPos.equals(floor.getChargeLocation())) {
+					// If at a charge location, recharge and move away from
+					// charge station
 					r.recharge();
 					r.setBusy(false);
-					Point curPos = r.getCurrentPosition();
-					r.moveUp();
-					r.setTarget(curPos);
-				} else if (targetPos.equals(this.floor.getPickLocation())) {
-					// Once we reach the pick station, don't move, and set your
-					// new target to an empty space.
-					r.setTarget(this.floor.getEmptyShelfLocation());
-				} else if (targetPos.equals(this.floor.getEmptyShelfLocation())) {
+					r.setTarget(floor.getShelfLocation()); 
+				} else if (targetPos.equals(floor.getPickLocation())) {
+					// Once we reach the pick station, set target to free space
+					// in the shelving area.
+					r.setTarget(floor.getShelfLocation(r.getCurrentShelf()));
+				} else if (targetPos.equals(floor.getShelfLocation(r.getCurrentShelf()))) {
 					// When the robot drops the shelf, make it go recharge.
 					r.dropShelf();
-					r.setTarget(this.floor.getChargeLocation());
+					r.setTarget(floor.getChargeLocation());
 					r.setBusy(true);
-				} else if (!this.floor.getShelfAt(targetPos).equals(null) && r.isBusy()) {
-					// If the robot reaches it's target, there's a shelf there,
-					// and it's busy, make it grab the shelf.
-					r.grabShelf(this.floor.getShelfAt(targetPos));
+				} else if (!floor.getShelfAt(targetPos).equals(null) && r.isBusy()) {
+					// If the robot reaches it's target in the shelving area,
+					// grab the shelf.
+					r.grabShelf(floor.getShelfAt(targetPos));
 				}
 			}
 		}
@@ -155,41 +163,47 @@ public class RobotScheduler implements Tickable {
 	protected void moveTowardTarget(Robot r) {
 		Point currentPos = r.getCurrentPosition(), target = r.getTarget();
 
-		if (currentPos.getX() < target.getX()) { // RIGHT
+		// Move right
+		if (currentPos.getX() < target.getX()) {
 			Point potentialLocation = new Point((int) currentPos.getX() + 1, (int) currentPos.getY());
-			if (notOccupied(potentialLocation) && currentPos.getX() != this.floor.getWidth()) {
+			if (notOccupied(potentialLocation) && currentPos.getX() != floor.getWidth()) {
 				r.moveRight();
-				return;
+				return; // Return to limit to one movement per method call.
 			}
 		}
 
-		if (currentPos.getX() > target.getX()) { // LEFT
+		// Move left
+		if (currentPos.getX() > target.getX()) {
 			Point potentialLocation = new Point((int) currentPos.getX() - 1, (int) currentPos.getY());
 			if (notOccupied(potentialLocation) && currentPos.getX() != 0) {
 				r.moveLeft();
-				return;
+				return; // Return to limit to one movement per method call.
 			}
 		}
 
-		if (currentPos.getY() < target.getY()) { // UP
+		// Move up
+		if (currentPos.getY() < target.getY()) {
 			Point potentialLocation = new Point((int) currentPos.getX(), (int) currentPos.getY() + 1);
-			if (notOccupied(potentialLocation) && currentPos.getY() != this.floor.getHeight()) {
+			if (notOccupied(potentialLocation) && currentPos.getY() != floor.getHeight()) {
 				r.moveUp();
-				return;
+				return; // Return to limit to one movement per method call.
 			}
 		}
 
-		if (currentPos.getY() > target.getY()) { // DOWN
+		// Move down
+		if (currentPos.getY() > target.getY()) {
 			Point potentialLocation = new Point((int) currentPos.getX(), (int) currentPos.getY() - 1);
 			if (notOccupied(potentialLocation) && currentPos.getY() != 0) {
 				r.moveDown();
-				return;
+				return; // Return to limit to one movement per method call.
 			}
 		}
 	}
 
 	/**
-	 * @author Ben East Checks if a robot is holding the given shelf.
+	 * @author Ben East
+	 * 
+	 *         Checks if a robot is holding the given shelf.
 	 * 
 	 * @param s
 	 *            The shelf that needs to be found.
