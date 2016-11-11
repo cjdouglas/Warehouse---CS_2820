@@ -85,6 +85,7 @@ public class Floor {
 	 * Returns the list of shelf locations relative to this floor
 	 * @return The list of shelf locations
 	 */
+	
 	public ArrayList< int[] > getShelfLocations() {
 		return shelfLocations;
 	}

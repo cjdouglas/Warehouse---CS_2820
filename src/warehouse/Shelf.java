@@ -2,6 +2,12 @@ package warehouse;
 
 import java.util.ArrayList;
 
+/**
+ * 
+ * @author sethpratt
+ *
+ */
+
 public class Shelf {
 	final int shelfNumber; // Each shelf is numbered 0 - (n-1)
 	final int maxWeight = 100; // Maximum amount of Item weight shelf can stow
@@ -90,7 +96,7 @@ public class Shelf {
 	}
 
 	/*
-	 * @return Returns whether a shelf is full or not
+	 * @return boolean Returns whether a shelf is full or not
 	 */
 	protected boolean isFull() {
 		if (shelfWeight < 100 && shelfWeight > 0) {
@@ -144,6 +150,9 @@ public class Shelf {
 		shelf0.getShelfNumber();
 		shelf1.getShelfNumber();
 		shelf2.getShelfNumber();
+		shelf0.displayShelf();
+		shelf0.removeItem(item1);
+		shelf0.displayShelf();
 
 	}
 

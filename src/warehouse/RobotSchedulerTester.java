@@ -1,10 +1,19 @@
 package warehouse;
 
+import java.awt.Point;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * 
+ * @author Ben East
+ *
+ * Runs tests on the RobotScheduler class
+ * 
+ */
 public class RobotSchedulerTester {
 	/**
+	 * @author Ben East
 	 * Runs tests on the RobotScheduler class.
 	 */
 	@Test
@@ -14,21 +23,20 @@ public class RobotSchedulerTester {
 		// Test createRobots
 		int i = 0;
 		for (Robot r : rs.getRobotList()) {
-			int[] coord = { i, 0 };
+			Point coord = new Point(i, 0);
 			Assert.assertEquals("createRobots incorrect", coord, r.getCurrentPosition());
 			i++;
 		}
 
 		// Test notOccupied
-		int[] loc = { 5, 5 };
+		Point loc = new Point(5, 5);
 		Assert.assertEquals("notOccupied incorrect", true, rs.notOccupied(loc));
-		loc[0] = 1;
-		loc[1] = 0;
+		loc.setLocation(1, 0);
 		Assert.assertEquals("notOccupied incorrect", false, rs.notOccupied(loc));
 
 		// Test moveTowardTarget
 		Robot testBot = new Robot(loc);
-		int[] target = { 3, 2 };
+		Point target = new Point(3, 2);
 		testBot.setTarget(target);
 		while (testBot.getCurrentPosition() != testBot.getTarget()) {
 			rs.moveTowardTarget(testBot);
