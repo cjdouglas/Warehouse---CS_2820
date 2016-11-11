@@ -1,3 +1,5 @@
+package warehouse;
+
 import java.util.*;
 public class Order {
     CustomerOrder A= new CustomerOrder(1,2,001);

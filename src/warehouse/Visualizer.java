@@ -10,7 +10,7 @@ public class Visualizer  {
 	 */
 	
 	//keep track of current locations of Robots
-	protected void robotLocationUpdater{
+	protected void robotLocationUpdater(){
 		robotLocations = RobotScheduler.robotList;
 	}
 	
