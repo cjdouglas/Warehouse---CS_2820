@@ -17,7 +17,8 @@ public class Robot {
 
 	/**
 	 * @author Ben East
-	 * Constructs a new robot object.
+	 * 
+	 *         Constructs a new robot object.
 	 * 
 	 * @param position
 	 *            The current position of the new robot.
@@ -52,7 +53,8 @@ public class Robot {
 
 	/**
 	 * @author Ben East
-	 * Makes the robot "grab" a shelf from the warehouse.
+	 * 
+	 *         Makes the robot "grab" a shelf from the warehouse.
 	 * 
 	 * @param s
 	 *            The shelf the Robot needs to grab.
@@ -76,7 +78,8 @@ public class Robot {
 
 	/**
 	 * @author Ben East
-	 * Sets the robot's busy value to the given parameter val.
+	 * 
+	 *         Sets the robot's busy value to the given parameter val.
 	 * 
 	 * @param val
 	 *            The busy status of the robot.
@@ -95,7 +98,8 @@ public class Robot {
 
 	/**
 	 * @author Ben East
-	 * Sets the robot's charged value to true.
+	 * 
+	 *         Sets the robot's charged value to true.
 	 */
 	protected void recharge() {
 		this.charged = true;
@@ -111,7 +115,8 @@ public class Robot {
 
 	/**
 	 * @author Ben East
-	 * Makes the robot "drop" it's shelf at it's current position.
+	 * 
+	 *         Makes the robot "drop" it's shelf at it's current position.
 	 * 
 	 * @return Returns the shelf that the robot was previously carrying.
 	 */
@@ -133,7 +138,8 @@ public class Robot {
 
 	/**
 	 * @author Ben East
-	 * Sets the robot's target position to the given target coordinates.
+	 * 
+	 *         Sets the robot's target position to the given target coordinates.
 	 * 
 	 * @param target
 	 *            The coordinates the robot should move toward.
@@ -152,8 +158,9 @@ public class Robot {
 
 	/**
 	 * @author Ben East
-	 * Decrements the robot's x coordinate value to "move" it one step to the
-	 * left.
+	 * 
+	 *         Decrements the robot's x coordinate value to "move" it one step
+	 *         to the left.
 	 */
 	protected void moveLeft() {
 		this.currentPosition.setLocation(this.currentPosition.getX() - 1, this.currentPosition.getY());
@@ -161,8 +168,9 @@ public class Robot {
 
 	/**
 	 * @author Ben East
-	 * Increments the robot's x coordinate value to "move" it one step to the
-	 * right.
+	 * 
+	 *         Increments the robot's x coordinate value to "move" it one step
+	 *         to the right.
 	 */
 	protected void moveRight() {
 		this.currentPosition.setLocation(this.currentPosition.getX() + 1, this.currentPosition.getY());
@@ -170,7 +178,9 @@ public class Robot {
 
 	/**
 	 * @author Ben East
-	 * Increments the robot's y coordinate value to "move" it one step up.
+	 * 
+	 *         Increments the robot's y coordinate value to "move" it one step
+	 *         up.
 	 */
 	protected void moveUp() {
 		this.currentPosition.setLocation(this.currentPosition.getX(), this.currentPosition.getY() + 1);
@@ -178,7 +188,9 @@ public class Robot {
 
 	/**
 	 * @author Ben East
-	 * Decrements the robot's y coordinate value to "move" it one step down.
+	 * 
+	 *         Decrements the robot's y coordinate value to "move" it one step
+	 *         down.
 	 */
 	protected void moveDown() {
 		this.currentPosition.setLocation(this.currentPosition.getX(), this.currentPosition.getY() - 1);

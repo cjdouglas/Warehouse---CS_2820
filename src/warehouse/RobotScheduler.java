@@ -1,6 +1,7 @@
 package warehouse;
 
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.awt.Point;
 
 /**
@@ -8,14 +9,15 @@ import java.awt.Point;
  *
  *         Group A2 - RobotScheduler class
  */
-public class RobotScheduler {
+public class RobotScheduler implements Tickable {
 	// Instance Variables
 	private LinkedList<Robot> robotList;
+	private PriorityQueue<Shelf> shelvesForOrder;
+	private PriorityQueue<Shelf> shelvesForRestock;
 	private Floor floor;
 
 	/**
-	 * @author Ben East
-	 * Constructs a new robotScheduler object.
+	 * @author Ben East Constructs a new robotScheduler object.
 	 * 
 	 * @param f
 	 *            The floor of the warehouse to be navigated.
@@ -25,12 +27,14 @@ public class RobotScheduler {
 	public RobotScheduler(Floor f, int numBots) {
 		this.floor = f;
 		this.robotList = new LinkedList<Robot>();
+		this.shelvesForOrder = new PriorityQueue<Shelf>();
+		this.shelvesForRestock = new PriorityQueue<Shelf>();
 		createRobots(numBots);
 	}
 
 	/**
-	 * @author Ben East
-	 * Returns the list of robots in the warehouse. Made for testing purposes.
+	 * @author Ben East Returns the list of robots in the warehouse. Made for
+	 *         testing/visualization purposes.
 	 * 
 	 * @return The list of robots in the warehouse.
 	 */
@@ -38,45 +42,73 @@ public class RobotScheduler {
 		return this.robotList;
 	}
 
-	// TODO handle the case that all robots are occupied at the moment
 	/**
-	 * @author Ben East
-	 * Assigns the shelves to robots
+	 * @author Ben East Takes a new assignment of shelves, saves the list, and
+	 *         sends robots to the pick location if they're already holding it.
 	 * 
 	 * @param shelvesNeeded
 	 */
-	public void assignOrder(LinkedList<Shelf> shelvesNeeded) {
+	public void assignOrder(PriorityQueue<Shelf> shelvesNeeded) {
+		// if a robot already has the shelf, reroute to the pick station.
 		for (Shelf s : shelvesNeeded) {
 			if (robotHasShelf(s)) {
 				for (Robot r : robotList) {
-					// Find the robot that has the shelf and make it go to the
-					// pick station
 					if (r.getCurrentShelf().equals(s)) {
 						r.setTarget(floor.getPickLocation());
 						r.setBusy(true);
 						shelvesNeeded.remove(s);
 					}
 				}
-			} else {
-				for (Robot r : robotList) {
-					if (r.getCurrentShelf().equals(null)) {
-						if (r.isCharged() && !r.isBusy()) {
-							// if the robot is charged and not busy, make it get
-							// the shelf.
-							r.setTarget(this.floor.getShelfLocation(s));
-							r.setBusy(true);
-							shelvesNeeded.remove(s);
-						}
-					}
-				}
 			}
+		}
+		// Save the remaining shelves for future robots
+		this.shelvesForOrder = shelvesNeeded;
+	}
+
+	/**
+	 * @author Ben East
+	 * @param s
+	 *            The shelf to be restocked.
+	 * 
+	 *            This method allows the master to give the scheduler a shelf
+	 *            that needs to be restocked. The scheduler will assign the
+	 *            shelf on the next tick.
+	 */
+	public void restock(Shelf s) {
+		// If a robot already has the shelf, make it go to the restock area.
+		for (Robot r : this.robotList) {
+			if (r.getCurrentShelf().equals(s)) {
+				// make the robot go to the restocking area
+			}
+		}
+		// Otherwise, add to the list of shelves that need to be restocked.
+		this.shelvesForRestock.add(s);
+	}
+
+	/**
+	 * @author Ben East
+	 * 
+	 *         Assigns a shelf to an idle robot if there are shelves to be
+	 *         assigned.
+	 */
+	protected void assignShelf(Robot r) {
+		// Prioritize restock over the current order.
+		if (!this.shelvesForRestock.isEmpty()) {
+			Point target = this.floor.getShelfLocation(this.shelvesForRestock.remove());
+			r.setTarget(target);
+			r.setBusy(true);
+		} else if (!this.shelvesForOrder.isEmpty()) {
+			Point target = this.floor.getShelfLocation(this.shelvesForOrder.remove());
+			r.setTarget(target);
+			r.setBusy(true);
 		}
 	}
 
 	/**
 	 * @author Ben East
-	 * Advances each robot 1 step toward their target, and makes them perform an
-	 * action if they are at their target.
+	 * 
+	 *         Advances each robot 1 step toward their target, and makes them
+	 *         perform an action if they are at their target.
 	 */
 	public void advanceRobots() {
 		for (Robot r : robotList) {
@@ -114,9 +146,8 @@ public class RobotScheduler {
 
 	// TODO Update movement to make use of highways and shelving areas.
 	/**
-	 * @author Ben East
-	 * Determines which direction the robot should move, and moves there if not
-	 * occupied.
+	 * @author Ben East Determines which direction the robot should move, and
+	 *         moves there if not occupied.
 	 * 
 	 * @param r
 	 *            The robot to be moved.
@@ -158,8 +189,7 @@ public class RobotScheduler {
 	}
 
 	/**
-	 * @author Ben East
-	 * Checks if a robot is holding the given shelf.
+	 * @author Ben East Checks if a robot is holding the given shelf.
 	 * 
 	 * @param s
 	 *            The shelf that needs to be found.
@@ -193,8 +223,9 @@ public class RobotScheduler {
 
 	/**
 	 * @author Ben East
-	 * Creates all of the robots for the warehouse. For use in the constructor
-	 * only.
+	 * 
+	 *         Creates all of the robots for the warehouse. For use in the
+	 *         constructor only.
 	 * 
 	 * @param numBots
 	 *            The number of robots to be created.
@@ -204,5 +235,23 @@ public class RobotScheduler {
 			Point robotPos = new Point(i, 0);
 			robotList.add(new Robot(robotPos));
 		}
+	}
+
+	/**
+	 * @author Ben East
+	 * @param time
+	 *            The position in time the simulation is at. Allows the
+	 *            RobotScheduler to take a step forward in time.
+	 */
+	public void tick(int time) {
+		// Assign shelves to free robots
+		for (Robot r : this.robotList) {
+			if (!r.isBusy() && r.isCharged()) {
+				// If the robot is ready to work, attempt to assign it a shelf.
+				assignShelf(r);
+			}
+		}
+		// Move each robot 1 step
+		advanceRobots();
 	}
 }
