@@ -8,6 +8,9 @@ import java.util.ArrayList;
  *
  */
 
+// Restock entire shelf each time it ventures to dock
+// Stock shelves
+
 public class Shelf {
 	final int shelfNumber; // Each shelf is numbered 0 - (n-1)
 	final int maxWeight = 100; // Maximum amount of Item weight shelf can stow
@@ -66,6 +69,7 @@ public class Shelf {
 			shelfWeight = shelfWeight - item.getWeight();
 		} else
 			System.out.println("Out of Stock");
+
 	}
 
 	/*
@@ -127,6 +131,18 @@ public class Shelf {
 			System.out.print(items.getName() + " " + items.numStocked + " ");
 		}
 		System.out.println();
+	}
+
+	/*
+	 * @return Return re-stocked shelf
+	 */
+	protected Shelf restock(Item item, Shelf shelf) {
+
+		while (shelf.willFit(item)) {
+			shelf.addItem(item);
+		}
+
+		return shelf;
 	}
 
 	public static void main(String[] args) {
