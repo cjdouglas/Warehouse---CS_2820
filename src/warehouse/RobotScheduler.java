@@ -79,6 +79,8 @@ public class RobotScheduler implements Tickable {
 		for (Robot r : this.robotList) {
 			if (r.getCurrentShelf().equals(s)) {
 				// make the robot go to the restocking area
+				r.setTarget(this.floor.getDockLocation());
+				r.setBusy(true);
 			}
 		}
 		// Otherwise, add to the list of shelves that need to be restocked.
@@ -94,12 +96,10 @@ public class RobotScheduler implements Tickable {
 	protected void assignShelf(Robot r) {
 		// Prioritize restock over the current order.
 		if (!this.shelvesForRestock.isEmpty()) {
-			Point target = this.floor.getShelfLocation(this.shelvesForRestock.remove());
-			r.setTarget(target);
+			r.setTarget(this.floor.getShelfLocation(this.shelvesForRestock.remove()));
 			r.setBusy(true);
 		} else if (!this.shelvesForOrder.isEmpty()) {
-			Point target = this.floor.getShelfLocation(this.shelvesForOrder.remove());
-			r.setTarget(target);
+			r.setTarget(this.floor.getShelfLocation(this.shelvesForOrder.remove()));
 			r.setBusy(true);
 		}
 	}
