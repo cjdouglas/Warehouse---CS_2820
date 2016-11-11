@@ -36,6 +36,7 @@ package warehouse;
 
 import java.awt.Point;
 import java.util.HashMap;
+import java.util.Set;
 
 public class Floor {
     
@@ -105,7 +106,7 @@ public class Floor {
 		return packLocation;
 	}
 	
-	public Point beltLocation() {
+	public Point getBeltLocation() {
 		return beltLocation;
 	}
 	
@@ -123,5 +124,13 @@ public class Floor {
 	
 	public int getHeight() {
 		return height;
+	}
+	
+	public Set<Integer> keySet() {
+		return locations.keySet();
+	}
+	
+	public Point locAt(int x) {
+		return locations.get(x);
 	}
 }
