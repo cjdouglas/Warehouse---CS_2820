@@ -12,7 +12,7 @@ import java.awt.Point;
  */
 public class RobotScheduler implements Tickable, toVisualize {
 	// Instance Variables
-	private LinkedList<Robot> robotList;
+	private ArrayList<Robot> robotList;
 	private PriorityQueue<Shelf> shelvesForOrder;
 	private PriorityQueue<Shelf> shelvesForRestock;
 	private Floor floor;
@@ -27,7 +27,7 @@ public class RobotScheduler implements Tickable, toVisualize {
 	 */
 	public RobotScheduler(Floor f, int numBots) {
 		floor = f;
-		this.robotList = new LinkedList<Robot>();
+		this.robotList = new ArrayList<Robot>();
 		this.shelvesForOrder = new PriorityQueue<Shelf>();
 		this.shelvesForRestock = new PriorityQueue<Shelf>();
 		createRobots(numBots);
@@ -50,6 +50,14 @@ public class RobotScheduler implements Tickable, toVisualize {
 		return robotLocations;
 	}
 
+	/**
+	 * @author Ben East
+	 * @return Returns the list of robots in the warehouse.
+	 */
+	public ArrayList<Robot> getRobotList() {
+		return this.robotList;
+	}
+	
 	/**
 	 * @author Ben East
 	 * 
