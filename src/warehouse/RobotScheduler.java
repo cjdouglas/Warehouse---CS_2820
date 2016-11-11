@@ -1,7 +1,7 @@
 package warehouse;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.awt.Point;
 
@@ -10,10 +10,10 @@ import java.awt.Point;
  *
  *         Group A2 - RobotScheduler class
  */
-public class RobotScheduler implements Tickable, toVisualize {
+public class RobotScheduler implements Tickable {
 	// Instance Variables
 	private ArrayList<Robot> robotList;
-	private PriorityQueue<Shelf> shelvesForOrder;
+	private HashSet<Shelf> shelvesForOrder;
 	private PriorityQueue<Shelf> shelvesForRestock;
 	private Floor floor;
 
@@ -28,26 +28,9 @@ public class RobotScheduler implements Tickable, toVisualize {
 	public RobotScheduler(Floor f, int numBots) {
 		floor = f;
 		this.robotList = new ArrayList<Robot>();
-		this.shelvesForOrder = new PriorityQueue<Shelf>();
+		this.shelvesForOrder = new HashSet<Shelf>();
 		this.shelvesForRestock = new PriorityQueue<Shelf>();
 		createRobots(numBots);
-	}
-
-	/**
-	 * @author Ben East
-	 * 
-	 *         Returns the list of robot locations in the warehouse. Made for
-	 *         testing/visualization purposes.
-	 * 
-	 * @return The list of robot locations in the warehouse.
-	 */
-	public ArrayList<Point> getRobotLocations() {
-		ArrayList<Point> robotLocations = new ArrayList<Point>();
-		for (Robot r : robotList) {
-			robotLocations.add(r.getCurrentPosition());
-		}
-
-		return robotLocations;
 	}
 
 	/**
@@ -57,7 +40,7 @@ public class RobotScheduler implements Tickable, toVisualize {
 	public ArrayList<Robot> getRobotList() {
 		return this.robotList;
 	}
-	
+
 	/**
 	 * @author Ben East
 	 * 
@@ -66,16 +49,14 @@ public class RobotScheduler implements Tickable, toVisualize {
 	 * 
 	 * @param shelvesNeeded
 	 */
-	public void assignOrder(PriorityQueue<Shelf> shelvesNeeded) {
+	public void assignOrder(HashSet<Shelf> shelvesNeeded) {
 		// if a robot already has the shelf, reroute to the pick station.
 		for (Shelf s : shelvesNeeded) {
-			if (robotHasShelf(s)) {
-				for (Robot r : robotList) {
-					if (r.getCurrentShelf().equals(s)) {
-						r.setTarget(floor.getPickLocation());
-						r.setBusy(true);
-						shelvesNeeded.remove(s);
-					}
+			for (Robot r : robotList) {
+				if (r.getCurrentShelf().equals(s)) {
+					r.setTarget(floor.getPickLocation());
+					r.setBusy(true);
+					shelvesNeeded.remove(s);
 				}
 			}
 		}
@@ -141,7 +122,7 @@ public class RobotScheduler implements Tickable, toVisualize {
 					// charge station
 					r.recharge();
 					r.setBusy(false);
-					r.setTarget(floor.getShelfLocation()); 
+					r.setTarget(floor.getShelfLocation());
 				} else if (targetPos.equals(floor.getPickLocation())) {
 					// Once we reach the pick station, set target to free space
 					// in the shelving area.
@@ -206,26 +187,6 @@ public class RobotScheduler implements Tickable, toVisualize {
 				return; // Return to limit to one movement per method call.
 			}
 		}
-	}
-
-	/**
-	 * @author Ben East
-	 * 
-	 *         Checks if a robot is holding the given shelf.
-	 * 
-	 * @param s
-	 *            The shelf that needs to be found.
-	 * @return Returns true if a robot is holding the shelf, and false
-	 *         otherwise.
-	 */
-	protected boolean robotHasShelf(Shelf s) {
-		for (Robot r : robotList) {
-			if (r.getCurrentShelf().equals(s)) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
