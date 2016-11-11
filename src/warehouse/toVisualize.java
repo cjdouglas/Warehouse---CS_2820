@@ -23,16 +23,16 @@ public interface toVisualize {
 	/**
 	 * returns number of shelves in use
 	 */
-	int getShelfCount();
+	//int getShelfCount();
 	
 	/**
-	 * Shelves must have some way of distinguising themselves from one another
+	 * Shelves must have some way of distinguishing themselves from one another
 	 * At this point I am assuming it'll be id#'s, such as 1,2,3,4... how ever many
 	 * are required or instantiated as necessary
 	 * Below method will return shelf of desired id#
 	 */
 	
-	Shelf getShelf(int shelfNumber);
+	//Shelf getShelf(int shelfNumber);
 	
 	
 	
