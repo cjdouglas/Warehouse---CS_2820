@@ -2,13 +2,13 @@ package warehouse;
 import java.util.*;
 //*@author Rui Zhao
 //create a Order class to intiate the order from customer and return the list of initial orders
-public class Order {
+public class Order2 {
 //create a customer object and a list to store orders
     int id;
     CustomerOrder[] item;
     ArrayList<CustomerOrder> L = new ArrayList<CustomerOrder>();
    
-    public Order(int id){
+    public Order2(int id){
         this.id = id;
     }
     //check if the order is in stock and then add it to the list
@@ -34,7 +34,7 @@ public class Order {
     
 }
 //create a CustomerOrder
-class CustomerOrder extands Item{
+class CustomerOrder extends Item{
     //create basic identity of the order
     int id;
     String name;
