@@ -2,6 +2,7 @@ package warehouse;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.awt.Point;
 
@@ -78,7 +79,7 @@ public class RobotScheduler implements Tickable {
 		for (Robot r : this.robotList) {
 			if (r.getCurrentShelf().equals(s)) {
 				// make the robot go to the restocking area
-				r.setTarget(floor.getDockLocation());
+				r.setTarget(floor.getShippingDockLocation());
 				r.setBusy(true);
 			}
 		}
@@ -98,8 +99,10 @@ public class RobotScheduler implements Tickable {
 			r.setTarget(floor.getShelfLocation(this.shelvesForRestock.remove()));
 			r.setBusy(true);
 		} else if (!this.shelvesForOrder.isEmpty()) {
-			r.setTarget(floor.getShelfLocation(this.shelvesForOrder.remove()));
+			Shelf nextShelf = this.shelvesForOrder.iterator().next();
+			r.setTarget(floor.getShelfLocation(nextShelf));
 			r.setBusy(true);
+			this.shelvesForOrder.remove(nextShelf);
 		}
 	}
 
@@ -122,7 +125,7 @@ public class RobotScheduler implements Tickable {
 					// charge station
 					r.recharge();
 					r.setBusy(false);
-					r.setTarget(floor.getShelfLocation());
+					r.setTarget(floor.getShelfLocation(r.getCurrentShelf()));
 				} else if (targetPos.equals(floor.getPickLocation())) {
 					// Once we reach the pick station, set target to free space
 					// in the shelving area.
@@ -132,9 +135,9 @@ public class RobotScheduler implements Tickable {
 					r.dropShelf();
 					r.setTarget(floor.getChargeLocation());
 					r.setBusy(true);
-				} else if (!floor.getShelfAt(targetPos).equals(null) && r.isBusy()) {
-					// If the robot reaches it's target in the shelving area,
-					// grab the shelf.
+				} else if (r.isBusy()) { // because of shelf location tracking,
+											// we can assume the shelf is here
+											// if the robot is busy
 					r.grabShelf(floor.getShelfAt(targetPos));
 				}
 			}
@@ -226,7 +229,7 @@ public class RobotScheduler implements Tickable {
 	 *            The position in time the simulation is at. Allows the
 	 *            RobotScheduler to take a step forward in time.
 	 */
-	public void tick(int time) {
+	public void tick() {
 		// Assign shelves to free robots
 		for (Robot r : this.robotList) {
 			if (!r.isBusy() && r.isCharged()) {
