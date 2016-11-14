@@ -16,6 +16,7 @@ public class RobotScheduler implements Tickable {
 	private ArrayList<Robot> robotList;
 	private HashSet<Shelf> shelvesForOrder;
 	private PriorityQueue<Shelf> shelvesForRestock;
+	private PriorityQueue<HashSet<Shelf>> pendingOrders;
 	private Floor floor;
 
 	/**
@@ -31,6 +32,7 @@ public class RobotScheduler implements Tickable {
 		this.robotList = new ArrayList<Robot>();
 		this.shelvesForOrder = new HashSet<Shelf>();
 		this.shelvesForRestock = new PriorityQueue<Shelf>();
+		this.pendingOrders = new PriorityQueue<HashSet<Shelf>>();
 		createRobots(numBots);
 	}
 
@@ -52,17 +54,21 @@ public class RobotScheduler implements Tickable {
 	 */
 	public void assignOrder(HashSet<Shelf> shelvesNeeded) {
 		// if a robot already has the shelf, reroute to the pick station.
-		for (Shelf s : shelvesNeeded) {
-			for (Robot r : robotList) {
-				if (r.getCurrentShelf().equals(s)) {
-					r.setTarget(floor.getPickLocation());
-					r.setBusy(true);
-					shelvesNeeded.remove(s);
+		if (this.shelvesForOrder.isEmpty()) {
+			for (Shelf s : shelvesNeeded) {
+				for (Robot r : robotList) {
+					if (r.getCurrentShelf().equals(s)) {
+						r.setTarget(floor.getPickLocation());
+						r.setBusy(true);
+						shelvesNeeded.remove(s);
+					}
 				}
 			}
+			// Save the remaining shelves for future robots
+			this.shelvesForOrder = shelvesNeeded;
+		} else {
+			this.pendingOrders.add(shelvesNeeded);
 		}
-		// Save the remaining shelves for future robots
-		this.shelvesForOrder = shelvesNeeded;
 	}
 
 	/**
@@ -103,6 +109,8 @@ public class RobotScheduler implements Tickable {
 			r.setTarget(floor.getShelfLocation(nextShelf));
 			r.setBusy(true);
 			this.shelvesForOrder.remove(nextShelf);
+		} else if (this.shelvesForOrder.isEmpty() && !this.pendingOrders.isEmpty()) {
+			this.shelvesForOrder = this.pendingOrders.remove();
 		}
 	}
 
