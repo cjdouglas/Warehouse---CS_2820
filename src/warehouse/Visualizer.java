@@ -1,6 +1,6 @@
 package warehouse;
 import java.util.*;
-import javax.swin
+import javax.Swing;
 
 public class Visualizer implements toVisualize {
 	ArrayList<Robot> Robots;

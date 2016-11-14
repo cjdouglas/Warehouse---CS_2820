@@ -1,3 +1,5 @@
+package warehouse;
+
 // Leon Grund
 public class ItemTest {
 	private boolean bin;

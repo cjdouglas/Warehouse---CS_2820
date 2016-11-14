@@ -91,7 +91,7 @@ public class MasterController implements Tickable {
 		
 		if(I.needRestock()){
 			restockShelves = I.getRestockShelves();
-			for(shelf rs: restockShelves){
+			for(Shelf rs: restockShelves){
 				if(!RS.restockingNow(rs)){
 					RS.restock(rs);}
 			}
