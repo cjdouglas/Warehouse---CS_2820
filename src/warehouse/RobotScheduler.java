@@ -111,7 +111,7 @@ public class RobotScheduler implements Tickable {
 			this.shelvesForOrder.remove(nextShelf);
 		} else if (this.shelvesForOrder.isEmpty() && !this.pendingOrders.isEmpty()) {
 			this.shelvesForOrder = this.pendingOrders.remove();
-			// since hasn't gotten a shelf, run through the above conditionals
+			// since r hasn't gotten a shelf, run through the above conditionals
 			// again.
 			assignShelf(r);
 		}
@@ -231,6 +231,21 @@ public class RobotScheduler implements Tickable {
 		for (int i = 0; i < numBots; ++i) {
 			Point robotPos = new Point(i, 0);
 			robotList.add(new Robot(robotPos));
+		}
+	}
+
+	/**
+	 * @author Ben East
+	 * @param s
+	 *            The Shelf to be checked
+	 * @return Return true if the shelf has been assigned to a robot for
+	 *         restock. Return false if the shelf has not been assigned yet.
+	 */
+	public boolean restockingNow(Shelf s) {
+		if (this.shelvesForRestock.contains(s)) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 
