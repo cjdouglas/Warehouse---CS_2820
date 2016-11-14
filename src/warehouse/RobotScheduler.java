@@ -111,6 +111,9 @@ public class RobotScheduler implements Tickable {
 			this.shelvesForOrder.remove(nextShelf);
 		} else if (this.shelvesForOrder.isEmpty() && !this.pendingOrders.isEmpty()) {
 			this.shelvesForOrder = this.pendingOrders.remove();
+			// since hasn't gotten a shelf, run through the above conditionals
+			// again.
+			assignShelf(r);
 		}
 	}
 
