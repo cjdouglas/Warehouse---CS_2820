@@ -1,39 +1,29 @@
 package warehouse;
 import java.util.*;
+import java.awt.*;
 /**
  * @author Andrew Willette
  *
  *         Group A2 - Visualizer Class
  */
-
+/**
+ * To connect visualizer GUI with master component
+ */
 public interface toVisualize {
 
-	/**
-	 * I am at this point assuming we will have a class point where
-	 * each component type have a Point instance attributed to it representing it's 
-	 * placement
-	 */
-	
+
 	
 	/**
-	 * when called, stores all points attributed to Robots at current time
+	 * 
+	 * @return ArrayList of Robots in the simulation
 	 */
-	ArrayList<Point> getRobotLocations();
+	public ArrayList<Robot> getRobotList();
 	
 	/**
-	 * returns number of shelves in use
+	 * To be called only on instantiation of visualizer to collect static members of board
+	 * @return new Floor();
 	 */
-	//int getShelfCount();
-	
-	/**
-	 * Shelves must have some way of distinguishing themselves from one another
-	 * At this point I am assuming it'll be id#'s, such as 1,2,3,4... how ever many
-	 * are required or instantiated as necessary
-	 * Below method will return shelf of desired id#
-	 */
-	
-	//Shelf getShelf(int shelfNumber);
-	
+	public Floor getFloor();
 	
 	
 }
