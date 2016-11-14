@@ -1,6 +1,7 @@
 package warehouse;
 
 import java.util.HashSet;
+import java.util.ArrayList;
 
 /** @author Liam Crawford
  * 
@@ -21,34 +22,30 @@ public class MasterController implements Tickable {
 	OrderSystem OS;
 	Belt B;
 	
-	static int numShelves = 15;
-	static int numRobots = 5;
+	// static int numShelves = 15;
+	static int numRobots = 13;
 	
 	/*
 	 * @author Liam Crawford
-	 * 
 	 * @param I
 	 * Given an inventory that has been pre-stocked and knows shelf locations of items
-	 * 
 	 * @param OS
 	 * Given an OrderSystem that will determine when orders have been "submitted"
-	 * 
 	 */
 	
 	public MasterController(Inventory I, OrderSystem OS){
 		this.I = I;
 		this.OS = OS;
-		this.F = new Floor(numShelves);
+		this.F = new Floor();
 		this.RS = new RobotScheduler(F, numRobots);
 		this.V = new Visualizer(F, RS.getRobotList());			
 	}
 	
 	
 	/*
-	 * @author Liam Crawford
-	 * 
+	 * @author Liam Crawford 
 	 * @param numTime
-	 * number of time units
+	 * 				number of time units
 	 * 
 	 * ticks the entire system forward the number of specified units of time
 	 * 
@@ -62,9 +59,7 @@ public class MasterController implements Tickable {
 	
 	/*
 	 * @author Liam Crawford
-	 * 
 	 * @param none
-	 * 
 	 * Ticks forward the system in the following order:
 	 * 
 	 * Check belt to see if there is a complete order ready to be shipped
@@ -80,7 +75,7 @@ public class MasterController implements Tickable {
 	
 	public void tick(){
 		HashSet<Shelf> orderShelves;
-		Shelf[] restockShelves;
+		ArrayList<Shelf> restockShelves;
 		
 		if(B.isOrderComplete()){
 			OS.OrderComplete();
@@ -97,20 +92,19 @@ public class MasterController implements Tickable {
 		if(I.needRestock()){
 			restockShelves = I.getRestockShelves();
 			for(shelf rs: restockShelves){
-				RS.restock(rs);
+				if(!RS.restockingNow(rs)){
+					RS.restock(rs);}
 			}
 		}
 		
 		RS.tick();
-		V.giveRobotList(RS.getRobotList());
+		V.setRobotList(RS.getRobotList());
 		V.tick();
 	}
 	
 	/*
 	 * @author Liam Crawford
-	 * 
 	 * @param none
-	 * 
 	 * outputs diagnostics of the system
 	 */
 	
