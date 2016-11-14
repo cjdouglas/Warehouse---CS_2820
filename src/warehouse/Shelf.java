@@ -8,6 +8,7 @@ import java.util.ArrayList;
  *
  */
 
+// 52 Shelves
 // Restock entire shelf each time it ventures to dock
 // Stock shelves
 
@@ -16,6 +17,7 @@ public class Shelf {
 	final int maxWeight = 100; // Maximum amount of Item weight shelf can stow
 	int shelfWeight; // Tracks current weight on shelf
 	boolean isFull; // Test whether a shelf is full
+	final int itemsPerShelf = 10;
 
 	/*
 	 * Items on shelf will be stored as objects in an arrayList
