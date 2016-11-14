@@ -3,61 +3,61 @@
  * Floor.java
  */
 
-/* Example: a number of 10 shelves passed into the Floor
+
+/*
+ * 
+ */
+
+/*
  * Key:
  * P = Picking Station
+ * K = Packer
+ * B = Belt 
+ * H = Shipping dock
+ * R = Receiving dock 
  * S = Shelf
  * C = Charging Station
  * Open Space = Open road Space
 
-	|P|P|P|P|P|P|
-	| | | | | | |
-	| | | | | | |
-	| | |S|S| | |
-	| | |S|S| | |
-	| | |S|S| | |
-	| | |S|S| | |
-	| | |S|S| | |
-	| | | | | | |
-	| | | | | | |
-	|C|C|C|C|C|C|
+	 0 1 2 3 4 5 6 7
+  0 | | | | |P|K|B|H|
+  1 | | | | | | | | |
+  2 | | |S| | |S| | |
+  3 | | |S| | |S| | |
+  4 | | |S| | |S| | |
+  5 | | |S| | |S| | |
+  6 | | | | | | | | |
+  7 |C| | | | | | |R|
 	
  */
 
 
 package warehouse;
 
-import java.util.ArrayList;
+import java.awt.Point;
+import java.util.HashMap;
+import java.util.Set;
 
 public class Floor {
     
-	private int numShelves;
-	private int width;
-	private int height;
+	private final int width = 8;
+	private final int height = 8;
 	
-	private int[] chargeLocation;
-	private int[] pickLocation;
+	private HashMap<Integer, Point> locations;
 	
-	private ArrayList< int[] > shelfLocations;
-	private ArrayList< int[] > chargeLocations;
-	private ArrayList< int[] > pickLocations;
+	private Point chargeLocation;
+	private Point pickLocation;
+	private Point packLocation;
+	private Point beltLocation;
+	private Point shippingDock;
+	private Point receivingDock;
 	
 	/**
 	 * Initializer for the Floor class
 	 * @param numShelves The number of shelves being passed into the Floor
 	 */
-	public Floor(int numShelves) {
-		this.numShelves = numShelves;
-		width = 6;
-		height = (numShelves / 2) + 6;
-		
-		chargeLocation = new int[] {0, 0};
-		pickLocation = new int[] {width - 1, 0};
-		
-		shelfLocations = new ArrayList<>();
-		chargeLocations = new ArrayList<>();
-		pickLocations = new ArrayList<>();
-		
+	public Floor() {
+		locations = new HashMap<>();
 		initFloor();
 	}	
 	
@@ -69,25 +69,20 @@ public class Floor {
 	 * Splits them up, half on the left border, half on the right
 	 */
 	private void initFloor() {
-		for (int row = 2; row <= 3; row++) {
-			for (int col = 3; col <= numShelves / 2; col++) {
-				shelfLocations.add(new int[] {row, col});
-			}
+		
+		int counter = 0;
+		
+		for (int i = 2; i < 6; i++) {
+			locations.put(counter++, new Point(2, i));
+			locations.put(counter++, new Point(5, i));
 		}
 		
-		for (int i = 0; i < width; i++) {
-			pickLocations.add(new int[] {i, 0});
-			chargeLocations.add(new int[] {height - 1, i});
-		}
-	}
-	
-	/**
-	 * Returns the list of shelf locations relative to this floor
-	 * @return The list of shelf locations
-	 */
-	
-	public ArrayList< int[] > getShelfLocations() {
-		return shelfLocations;
+		chargeLocation = new Point(0, height - 1);
+		pickLocation = new Point(0, 4);
+		packLocation = new Point(0, 5);
+		beltLocation = new Point(0, 6);
+		shippingDock = new Point(0, 7);
+		receivingDock = new Point(width - 1, height - 1);
 	}
 	
 	/**
@@ -95,20 +90,32 @@ public class Floor {
 	 * @param shelf The shelf to find the location for
 	 * @return The location of a given shelf object
 	 */
-	public int[] getShelfLocation(Shelf shelf) {
-		return shelfLocations.get(shelf.shelfNumber); // Assuming shelves are numbered 0 -> n - 1
+	public Point getShelfLocation(Shelf shelf) {
+		return locations.get(shelf.getShelfNumber());
 	}
 	
-	public int[] getChargeLocation() {
-		return chargeLocations.get(0);
+	public Point getChargeLocation() {
+		return chargeLocation;
 	}
 	
-	public int[] getPickLocation() {
-		return pickLocations.get(0);
+	public Point getPickLocation() {
+		return pickLocation;
 	}
 	
-	public Shelf getShelfAt(int[] loc) {
-		return null; // Not sure if I'll have instances of Shelves at runtime
+	public Point getPackLocation() {
+		return packLocation;
+	}
+	
+	public Point getBeltLocation() {
+		return beltLocation;
+	}
+	
+	public Point getShippingDockLocation() {
+		return shippingDock;
+	}
+	
+	public Point getReceivingDockLocation() {
+		return receivingDock;
 	}
 	
 	public int getWidth() {
@@ -119,5 +126,11 @@ public class Floor {
 		return height;
 	}
 	
-	// getEmptyShelfLocation() ??
+	public Set<Integer> keySet() {
+		return locations.keySet();
+	}
+	
+	public Point locAt(int x) {
+		return locations.get(x);
+	}
 }
