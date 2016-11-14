@@ -85,7 +85,7 @@ public class RobotScheduler implements Tickable {
 		for (Robot r : this.robotList) {
 			if (r.getCurrentShelf().equals(s)) {
 				// make the robot go to the restocking area
-				r.setTarget(floor.getShippingDockLocation());
+				r.setTarget(floor.getReceivingDockLocation());
 				r.setBusy(true);
 			}
 		}
@@ -238,14 +238,19 @@ public class RobotScheduler implements Tickable {
 	 * @author Ben East
 	 * @param s
 	 *            The Shelf to be checked
-	 * @return Return true if the shelf has been assigned to a robot for
-	 *         restock. Return false if the shelf has not been assigned yet.
+	 * @return Return true if the robotScheduler is working on restocking a
+	 *         shelf, and return false otherwise.
 	 */
 	public boolean restockingNow(Shelf s) {
+		for (Robot r : robotList) {
+			if (r.getCurrentShelf().equals(s) && r.getTarget().equals(floor.getReceivingDockLocation())) {
+				return true;
+			}
+		}
 		if (this.shelvesForRestock.contains(s)) {
-			return false;
-		} else {
 			return true;
+		} else {
+			return false;
 		}
 	}
 
