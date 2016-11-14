@@ -62,11 +62,7 @@ public class Floor {
 	}	
 	
 	/**
-	 * Initializes the shelf locations for the floor
-	 * based of the number passed to the constructor
-	 * 
-	 * Places shelves on the outer borders of the floor.
-	 * Splits them up, half on the left border, half on the right
+	 * Initializes the locations for the floor
 	 */
 	private void initFloor() {
 		
@@ -94,34 +90,66 @@ public class Floor {
 		return locations.get(shelf.getShelfNumber());
 	}
 	
+	/**
+	 * Returns the Point representing the charge location
+	 * @return The Point representing the charge location
+	 */
 	public Point getChargeLocation() {
 		return chargeLocation;
 	}
 	
+	/**
+	 * Returns the Point representing the pick location
+	 * @return The Point representing the pick location
+	 */
 	public Point getPickLocation() {
 		return pickLocation;
 	}
 	
+	/**
+	 * Returns the Point representing the pack location
+	 * @return The Point representing the pack location
+	 */
 	public Point getPackLocation() {
 		return packLocation;
 	}
 	
+	/**
+	 * Returns the Point representing the belt location
+	 * @return The Point representing the belt location
+	 */
 	public Point getBeltLocation() {
 		return beltLocation;
 	}
 	
+	/**
+	 * Returns the Point representing the shipping dock location
+	 * @return The Point representing the shipping dock location
+	 */
 	public Point getShippingDockLocation() {
 		return shippingDock;
 	}
 	
+	/**
+	 * Returns the Point representing the receiving dock location
+	 * @return The Point representing the receiving dock location
+	 */
 	public Point getReceivingDockLocation() {
 		return receivingDock;
 	}
 	
+	/**
+	 * Returns the width of the floor
+	 * @return The width of the floor
+	 */
 	public int getWidth() {
 		return width;
 	}
 	
+	/**
+	 * Returns the height of the floor
+	 * @return The height of the floor
+	 */
 	public int getHeight() {
 		return height;
 	}
