@@ -6,20 +6,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.awt.Point;
 
-import warehouse.Floor;
-import warehouse.Item;
 //import warehouse.Point;
 
 public class Belt implements Tickable {
 	Floor F;
-	List<Point> beltArea;
-	//private Point beltLocation;
+	ArrayList<Point> beltArea;
 	private Point pickLocation;
 	private Point packLocation;
 	private LinkedList<List<Item>> binList;
 	private int beltCapacity;
 	private ArrayList<Item> listOfItemOrder;
-	private List<Item> itemOrder;
+	private ArrayList<Item> itemOrder;
 	
 	/**
 	 * @author Leon Grund
@@ -29,12 +26,15 @@ public class Belt implements Tickable {
 	 */
 	public Belt(Floor F){
 		this.F = F;
-		List<Point> beltArea = F.getBeltArea();
-		//Point beltLocation = F.getBeltLocation();
+		ArrayList<Point> beltArea = new ArrayList<Point>();
+		beltArea = F.getBeltArea();
+
 		Point pickLocation = F.getPickLocation();
 		Point packLocation = F.getPackLocation();
 		
 		binList = new LinkedList<List<Item>>();
+		listOfItemOrder = new ArrayList<Item>();
+		itemOrder = new ArrayList<Item>();
 		beltCapacity = beltArea.size();
 	}
 
@@ -55,15 +55,23 @@ public class Belt implements Tickable {
 		return true;
 	}
 	
+	private Point startBeltLoc(){
+		return beltArea.get(0);
+	}
+	
+	private Point endBeltLoc(){
+		return beltArea.get(beltCapacity-1);
+	}
+	
 	// items to add to the bin for the current order
 	public void addItemsToBin(ArrayList<Item> pickedItems){
 		for(Item i: pickedItems){
 			if(listOfItemOrder.contains(i)){
 				itemOrder.add(i);
 				listOfItemOrder.remove(i);
-				
 				continue;
-			}else{
+			}
+			else{
 			System.out.println("Invalid Item Error: picked item received, not on order");}
 		}
 	}
@@ -89,7 +97,7 @@ public class Belt implements Tickable {
 	   * @param I The item of which you want to find the ID
 	   * @return int The ID to corresponding item
 	   */
-	public int itemID(Item I){return I.getItemID();}
+	//public int itemID(Item I){return I.getItemID();}
 	
 	/**
 	 * private method simulating a packer that removes bin from the belt
@@ -97,6 +105,7 @@ public class Belt implements Tickable {
 	 * @void remove first bin of binList
 	 */
 	private void doPacker(){
+		if(binList.isEmpty()){System.out.println("Belt is empty");return;}
 		List<Item> toRemoveBin = binList.getFirst();
 		if(checkBin(toRemoveBin, packLocation)){
 			System.out.println("Bin at Packer Station: Removes Bin/Order: ");
@@ -117,9 +126,9 @@ public class Belt implements Tickable {
 			return;
 		}
 		// Bin/Order is complete -> picker places bin/order on belt
-		if(isOrderComplete()){
+		if(isOrderComplete() && (getOrder().size()>0)){
 			System.out.println("Picker places complete bin/order on belt");
-			moveBin(itemOrder, beltArea.get(0));
+			moveBin(itemOrder, startBeltLoc());
 			binList.addLast(itemOrder);
 			itemOrder.clear();
 			System.out.println("Picker ready to do newOrder(AryList<Item>) and AraddItemsToBin()");
@@ -130,7 +139,7 @@ public class Belt implements Tickable {
 	   * public method to see all items for an order
 	   * @return List of Items for an order
 	   */
-	public List<Item> getOrder(){return itemOrder;}
+	public ArrayList<Item> getOrder(){return itemOrder;}
 	
 	/**
 	   * public method to see if the next order can start to be fulfilled
@@ -188,14 +197,17 @@ public class Belt implements Tickable {
 		  doPicker();
 		  
 		  //------Advances all bins on belt by one point------
-		  boolean flag = false;
+		  boolean flag;
 			  for(List<Item> I: binList){
 				  System.out.println("Order/Bin move one point" + Arrays.toString(I.toArray()));
+				  flag = false;
+				  if(checkBin(I,endBeltLoc())){
+					  moveBin(I,packLocation);
+					  continue;}
 				  for(Point P: beltArea){
 					 if(flag){moveBin(I,P); flag= false; break;}
 					 if(checkBin(I,P)){flag = true;}
 				  }
-				  if(flag){moveBin(I,packLocation); flag=false;}
 		  }
 		//-------Belt done moving-----
 			 
