@@ -82,13 +82,11 @@ public class RobotScheduler implements Tickable {
 	 *            shelf on the next tick.
 	 */
 	public void restock(Shelf s) {
-		// If a robot already has the shelf, make it go to the restock area.
 		for (Robot r : this.robotList) {
-			if (r.getCurrentShelf().equals(s)) {
-				// make the robot go to the restocking area
+			if (r.getCurrentShelf().equals(s)) { // Order the robot to restock
 				r.setTarget(floor.getReceivingDockLocation());
 				r.setBusy(true);
-				return;
+				return; // We're done here...
 			}
 		}
 		// Otherwise, add to the list of shelves that need to be restocked.
@@ -113,8 +111,6 @@ public class RobotScheduler implements Tickable {
 			this.shelvesForOrder.remove(nextShelf);
 		} else if (this.shelvesForOrder.isEmpty() && !this.pendingOrders.isEmpty()) {
 			this.shelvesForOrder = this.pendingOrders.remove();
-			// since r hasn't gotten a shelf, run through the above conditionals
-			// again.
 			assignShelf(r);
 		}
 	}
@@ -129,29 +125,27 @@ public class RobotScheduler implements Tickable {
 		for (Robot r : robotList) {
 			Point currentPos = r.getCurrentPosition(), targetPos = r.getTarget();
 
-			if (!currentPos.equals(targetPos)) {
-				// If the robot isn't at it's target, make it move.
+			if (!currentPos.equals(targetPos)) { // keep moving
 				moveTowardTarget(r);
-			} else { // If the robot is at the target
-				if (targetPos.equals(floor.getChargeLocation())) {
-					// If at a charge location, recharge and move away from
-					// charge station
+			} else {
+				if (targetPos.equals(floor.getChargeLocation())) { // Recharge
 					r.recharge();
 					r.setBusy(false);
 					r.setTarget(floor.getShelfLocation(r.getCurrentShelf()));
-				} else if (targetPos.equals(floor.getPickLocation())) {
-					// Once we reach the pick station, set target to free space
-					// in the shelving area.
+				} else if (targetPos.equals(floor.getPickLocation())) { // Handle pick area
+					// pick action?
 					r.setTarget(floor.getShelfLocation(r.getCurrentShelf()));
-				} else if (targetPos.equals(floor.getShelfLocation(r.getCurrentShelf()))) {
-					// When the robot drops the shelf, make it go recharge.
+				} else if (targetPos.equals(floor.getShelfLocation(r.getCurrentShelf()))) { // Handle drop shelf
 					r.dropShelf();
 					r.setTarget(floor.getChargeLocation());
 					r.setBusy(true);
-				} else if (r.isBusy()) { // because of shelf location tracking,
-											// we can assume the shelf is here
-											// if the robot is busy
+				} else if (r.isBusy() && r.getCurrentShelf() == null) { // Handle grab shelf
+					// Since shelves have a home position, if this robot was
+					// assigned the shelf, it must be on the ground.
 					r.grabShelf(floor.getShelfAt(targetPos));
+				} else if (r.getCurrentShelf() != null && targetPos.equals(floor.getReceivingDockLocation())) { // Handle restock
+					// restock action?
+					r.setTarget(floor.getShelfLocation(r.getCurrentShelf()));
 				}
 			}
 		}
@@ -231,8 +225,7 @@ public class RobotScheduler implements Tickable {
 	 */
 	protected void createRobots(int numBots) {
 		for (int i = 0; i < numBots; ++i) {
-			Point robotPos = new Point(i, 0);
-			robotList.add(new Robot(robotPos));
+			robotList.add(new Robot(new Point(i, 0)));
 		}
 	}
 
@@ -258,12 +251,9 @@ public class RobotScheduler implements Tickable {
 
 	/**
 	 * @author Ben East
-	 * @param time
-	 *            The position in time the simulation is at. Allows the
-	 *            RobotScheduler to take a step forward in time.
+	 * The method to allow the robot scheduler to take action during the simulation.
 	 */
 	public void tick() {
-		// Assign shelves to free robots
 		for (Robot r : this.robotList) {
 			if (!r.isBusy() && r.isCharged()) {
 				// If the robot is ready to work, attempt to assign it a shelf.
