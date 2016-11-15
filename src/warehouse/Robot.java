@@ -44,11 +44,7 @@ public class Robot {
 	 *         the robot isn't holding a shelf.
 	 */
 	protected Shelf getCurrentShelf() {
-		if (this.hasShelf()) {
-			return this.currentShelf;
-		} else {
-			return null;
-		}
+		return this.currentShelf;
 	}
 
 	/**
@@ -61,19 +57,6 @@ public class Robot {
 	 */
 	protected void grabShelf(Shelf s) {
 		this.currentShelf = s;
-	}
-
-	/**
-	 * @author Ben East
-	 * @return Returns true if the robot is holding a shelf, and false
-	 *         otherwise.
-	 */
-	protected boolean hasShelf() {
-		if (this.currentShelf.equals(null)) {
-			return false;
-		} else {
-			return true;
-		}
 	}
 
 	/**
@@ -124,7 +107,7 @@ public class Robot {
 		// If we're holding a shelf, put it down and give the scheduler the
 		// shelf info the scheduler will inform the floor of the new shelf at
 		// this.currentPosition.
-		if (hasShelf()) {
+		if (this.currentShelf != null) {
 			Shelf tempShelf = this.currentShelf;
 			this.currentShelf = null;
 			this.charged = false;
