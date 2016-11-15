@@ -1,7 +1,7 @@
 package warehouse;
 
 import java.util.LinkedList;
-import java.awt.List;
+import java.util.List;
 import java.awt.Point;
 
 import warehouse.Floor;
@@ -14,8 +14,6 @@ public class Belt implements Tickable {
 	private Point beltLocation;
 	private Point pickLocation;
 	private Point packLocation;
-	
-	private boolean moves = false;
 	private LinkedList<Item> itemList;
 	private int beltCapacity;
 	
@@ -32,7 +30,7 @@ public class Belt implements Tickable {
 		Point packLocation = F.getPackLocation();
 		
 		itemList = new LinkedList<Item>();
-		beltCapacity = 5;
+		beltCapacity = 6;
 	}
 
 	/*---------- G E T T E R S ----------*/
@@ -63,14 +61,18 @@ public class Belt implements Tickable {
 	
 	public void doPacker(){
 		if(packLocation == itemList.getFirst().getLocation()){
+			System.out.println("Remove: " + itemList.getFirst().getItemID());
 			itemList.removeFirst();
+			return;
 		}
+		System.out.println("Packer waiting for bin");
 
 	}
 	
 	public void doPicker(Item I){
+		if(numOfItems() == beltCapacity){System.out.println("Belt is full");return;}
+		System.out.println("Item: " + I.getItemID() + " placed in bin");
 		I.setLocation(pickLocation);
-		
 		itemList.addLast(I);}
 	
 	/**
@@ -123,16 +125,19 @@ public class Belt implements Tickable {
 	   * @return tick belt
 	   */
 	  public void tick() {
-		  System.out.println("Start: T I C K belt");
-		  boolean flag;
+		  System.out.println("----------Start: T I C K belt----------");
+		  //doPicker()
+		  boolean flag = false;
 			  for(Item I: itemList){
+				  System.out.println("Before Location " + I.getItemID() + ": " + I.getLocation());
 				  for(Point P: beltArea){
 					 if(flag){moveBin(I,P); flag= false;}
-					 if(P = I.getLocation()) {flag = true;}
-				System.out.println("Moved Item: " + I.getItemID());	  
+					 if(P == I.getLocation()) {flag = true;}	  
 			  }
+				  System.out.println("Before Location " + I.getItemID() + ": " + I.getLocation());
 		  }
 			  doPacker();
+			  System.out.println("----------End: T I C K belt----------"); 
 	    }
 	  
 	  /**
@@ -160,12 +165,14 @@ public class Belt implements Tickable {
 	   * Called by Orders to check whether a new Bin can be safely started
 	   */
 	  public boolean binAvailable() {
+		  if(numOfItems() != beltCapacity) return true;
 		return false;
 	    }
 	  /**
 	   * Called by Orders to simulate a Picker starting a new Bin
-	   */
+	  
 	  public Bin getBin() {
 		return null; 
 	    }
+	  */
 }
