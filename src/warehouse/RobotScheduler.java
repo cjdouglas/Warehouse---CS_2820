@@ -61,6 +61,7 @@ public class RobotScheduler implements Tickable {
 						r.setTarget(floor.getPickLocation());
 						r.setBusy(true);
 						shelvesNeeded.remove(s);
+						break; // Move on to the next shelf...
 					}
 				}
 			}
@@ -242,16 +243,16 @@ public class RobotScheduler implements Tickable {
 	 *         shelf, and return false otherwise.
 	 */
 	public boolean restockingNow(Shelf s) {
+		if (this.shelvesForRestock.contains(s)) {
+			return true;
+		}
 		for (Robot r : robotList) {
 			if (r.getCurrentShelf().equals(s) && r.getTarget().equals(floor.getReceivingDockLocation())) {
 				return true;
 			}
 		}
-		if (this.shelvesForRestock.contains(s)) {
-			return true;
-		} else {
-			return false;
-		}
+
+		return false;
 	}
 
 	/**
