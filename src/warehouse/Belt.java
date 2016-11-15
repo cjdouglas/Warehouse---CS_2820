@@ -14,7 +14,7 @@ public class Belt implements Tickable {
 	private Point beltLocation;
 	private Point pickLocation;
 	private Point packLocation;
-	private LinkedList<Item> itemList;
+	private LinkedList<Item> binList;
 	private int beltCapacity;
 	
 	/**
@@ -29,71 +29,83 @@ public class Belt implements Tickable {
 		Point pickLocation = F.getPickLocation();
 		Point packLocation = F.getPackLocation();
 		
-		itemList = new LinkedList<Item>();
+		binList = new LinkedList<Item>();
 		beltCapacity = 6;
 	}
 
 	/*---------- G E T T E R S ----------*/
 	/**
-	   * public method to see whether belt is moving
-	   * @return true if belt can be moved, is moving
+	   * private method to advance a Bin on belt
+	   * @void I, updates the items location 
 	   */
-	
-	
-	
-	
-	public void moveBin(Item I, Point Loc){I.setLocation(Loc);}
+	private void moveBin(Item I, Point Loc){I.setLocation(Loc);}
 	
 	/**
-	   * public method to see the number of Items on the belt
+	   * public method to see the number of Bins/Items on the belt
 	   * @return int, number of Items on belt
 	   */
-	public int numOfItems(){return itemList.size();}
+	public int numOfBins(){return binList.size();}
 	
 	/**
-	   * public method to get an item that is on the belt and remove it
-	   * @param ID number of Item
-	   * @return Item with corresponding ID number
+	   * public method to get item ID
+	   * @param I The item of which you want to find the ID
+	   * @return int The ID to corresponding item
 	   */
+	public int itemID(Item I){return I.getItemID();}
 	
-	
-	
-	
-	public void doPacker(){
-		if(packLocation == itemList.getFirst().getLocation()){
-			System.out.println("Remove: " + itemList.getFirst().getItemID());
-			itemList.removeFirst();
+	/**
+	 * private method simulating a packer that removes bin from the belt
+	 * void removes bin at packer station
+	 * @void remove first bin of binList
+	 */
+	private void doPacker(){
+		Item toRemove = binList.getFirst();
+		if(packLocation == toRemove.getLocation()){
+			System.out.println("Packer Removes Item: " + toRemove.getItemID());
+			binList.removeFirst();
 			return;
 		}
-		System.out.println("Packer waiting for bin");
+		System.out.println("Packer waiting for bin to arrive");
 
 	}
 	
+	/**
+	 * method simulating a picker that puts an item in bin on the belt
+	 * @param I The Item to be placed in bin on belt
+	 * @void adds Item/Bin to the end of binList
+	 */
 	public void doPicker(Item I){
-		if(numOfItems() == beltCapacity){System.out.println("Belt is full");return;}
-		System.out.println("Item: " + I.getItemID() + " placed in bin");
-		I.setLocation(pickLocation);
-		itemList.addLast(I);}
+		if(!binAvailable()){
+			System.out.println("doPicker(I) Error: Belt full");
+			return;
+		}
+		System.out.println("Picker Places item in bin on belt: " + I.getItemID());
+		moveBin(I,pickLocation);
+		binList.addLast(I);}
 	
 	/**
 	   * public method to see all items on the belt
 	   * @return ArrayList of Items, every item on the belt 
 	   */
-	public LinkedList<Item> getOrder(){return itemList;}
+	public LinkedList<Item> getOrder(){return binList;}
 	
 	/**
 	   * public method to see if the next order can start to be fulfilled
 	   * @return true if the next order can start 
 	   */
 	public boolean isOrderComplete(){
-		if(itemList.isEmpty()){return true;}
+		// JUST FOR SIMPLE TESTING
+		//first place item one by one on belt
+		//let it tick until bin arrives at packer station to be removed
+		//when all bins are removed -> ORDER COMPLETE
+		if(binList.isEmpty()){return true;}
 		return false;
 		}
 	
 
 	/*---------- S E T T E R S ----------*/
 	
-	public void clearBelt(){itemList.clear();}
+	public void clearBelt(){binList.clear();}
 	
 	/**
 	   * the tick() method is where belt moving gets done;
@@ -126,18 +138,24 @@ public class Belt implements Tickable {
 	   */
 	  public void tick() {
 		  System.out.println("----------Start: T I C K belt----------");
-		  //doPicker()
+		  //doPicker();
+		  System.out.println("Order Complete?: " + isOrderComplete());
+		  
+		  //------Advances all bins on belt by one------
 		  boolean flag = false;
-			  for(Item I: itemList){
-				  System.out.println("Before Location " + I.getItemID() + ": " + I.getLocation());
+			  for(Item I: binList){
+				  System.out.println("Before Location " + I.getItemID() + ": " + I.getLocation().toString());
 				  for(Point P: beltArea){
-					 if(flag){moveBin(I,P); flag= false;}
+					 if(flag){moveBin(I,P); flag= false; break;}
 					 if(P == I.getLocation()) {flag = true;}	  
 			  }
-				  System.out.println("Before Location " + I.getItemID() + ": " + I.getLocation());
+				  System.out.println("After Location " + I.getItemID() + ": " + I.getLocation().toString());
 		  }
-			  doPacker();
-			  System.out.println("----------End: T I C K belt----------"); 
+		//-------Belt done moving-----
+			 
+		// call a packer to check if a bin arrived at packer station	 
+		doPacker();
+		System.out.println("----------End: T I C K belt----------"); 
 	    }
 	  
 	  /**
@@ -165,7 +183,7 @@ public class Belt implements Tickable {
 	   * Called by Orders to check whether a new Bin can be safely started
 	   */
 	  public boolean binAvailable() {
-		  if(numOfItems() != beltCapacity) return true;
+		  if(numOfBins() < beltCapacity) return true;
 		return false;
 	    }
 	  /**
