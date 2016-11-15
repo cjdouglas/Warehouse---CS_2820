@@ -55,14 +55,12 @@ public class RobotScheduler implements Tickable {
 	public void assignOrder(HashSet<Shelf> shelvesNeeded) {
 		// if a robot already has the shelf, reroute to the pick station.
 		if (this.shelvesForOrder.isEmpty()) {
-			for (Shelf s : shelvesNeeded) {
-				for (Robot r : robotList) {
-					if (r.getCurrentShelf().equals(s)) {
-						r.setTarget(floor.getPickLocation());
-						r.setBusy(true);
-						shelvesNeeded.remove(s);
-						break; // Move on to the next shelf...
-					}
+			for (Robot r : robotList) {
+				if (shelvesNeeded.contains(r.getCurrentShelf())) {
+					r.setTarget(floor.getPickLocation());
+					r.setBusy(true);
+					shelvesNeeded.remove(r.getCurrentShelf());
+					break; // Move on to the next shelf...
 				}
 			}
 			// Save the remaining shelves for future robots
