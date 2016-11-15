@@ -79,6 +79,8 @@ public class MasterController implements Tickable {
 		
 		// check to see if items can be added to the bin
 		if(RS.robotsAtPicker()){
+			I.pickItems(RS.shelvesAtPicker());
+			B.pickItemsToBin(RS.shelvesAtPicker());
 		}
 		
 		// check to see if the next order can start to be fulfilled
@@ -99,6 +101,7 @@ public class MasterController implements Tickable {
 		
 		// restock shelves if they're at the right spot
 		if(RS.robotsAtRestock()){
+			I.restockShelves(RS.shelvesAtRestock());}
 		
 		// anything need restocked? tell RS
 		if(I.needRestock()){
