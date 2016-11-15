@@ -34,6 +34,7 @@
 
 package warehouse;
 
+import java.util.List;
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.Set;
@@ -44,7 +45,7 @@ public class Floor {
 	private final int height = 8;
 	
 	private HashMap<Integer, Point> locations;
-	
+	private List<Point> beltArea;
 	private Point chargeLocation;
 	private Point pickLocation;
 	private Point packLocation;
@@ -74,9 +75,17 @@ public class Floor {
 		}
 		
 		chargeLocation = new Point(0, height - 1);
+		//--------BELT AREA-----------
 		pickLocation = new Point(0, 4);
 		packLocation = new Point(0, 5);
 		beltLocation = new Point(0, 6);
+		beltArea.add(pickLocation);
+		beltArea.add(new Point(0,3));
+		beltArea.add(new Point(1,3));
+		beltArea.add(new Point(1,4));
+		beltArea.add(new Point(1,5));
+		beltArea.add(packLocation);
+		//----------------------------
 		shippingDock = new Point(0, 7);
 		receivingDock = new Point(width - 1, height - 1);
 	}
@@ -160,5 +169,9 @@ public class Floor {
 	
 	public Point locAt(int x) {
 		return locations.get(x);
+	}
+
+	public List<Point> getBeltArea() {
+		return beltArea;
 	}
 }
