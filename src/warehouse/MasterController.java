@@ -75,12 +75,15 @@ public class MasterController implements Tickable {
 	
 	public void tick(){
 		HashSet<Shelf> orderShelves;
+		ArrayList<Item> orderItems;
 		ArrayList<Shelf> restockShelves;
+		ArrayList<Item> pickedItems;
+		
 		
 		// check to see if items can be added to the bin
 		if(RS.robotsAtPicker()){
-			I.pickItems(RS.shelvesAtPicker());
-			B.pickItemsToBin(RS.shelvesAtPicker());
+			pickedItems = I.pickItems(RS.shelvesAtPicker());
+			B.addItemsToBin(pickedItems);
 		}
 		
 		// check to see if the next order can start to be fulfilled
@@ -96,6 +99,7 @@ public class MasterController implements Tickable {
 		// new Order to hand to the scheduler?
 		if(OS.isOrder()){
 			orderShelves = OS.getOrderShelves();
+			B.newOrder(orderItems);
 			RS.assignOrder(orderShelves);
 		}
 		
