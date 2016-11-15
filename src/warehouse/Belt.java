@@ -1,49 +1,171 @@
 package warehouse;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
+import java.awt.List;
+import java.awt.Point;
 
-// Leon Grund
-public class Belt {
+import warehouse.Floor;
+import warehouse.Item;
+//import warehouse.Point;
 
+public class Belt implements Tickable {
+	Floor F;
+	List<Point> beltArea;
+	private Point beltLocation;
+	private Point pickLocation;
+	private Point packLocation;
+	
 	private boolean moves = false;
-	private ArrayList<Item> itemList;
-	//private LinkedList<int[]> xyList;
+	private LinkedList<Item> itemList;
 	private int beltCapacity;
-	private int pickerX;
-	private int pickerY;
-	private int packerX;
-	private int packerY;
 	
-	public Belt(int startX, int startY, int endX, int endY, int capacity){
-		itemList = new ArrayList<Item>();
-		//xyList = new LinkedList<int[]>();
-		//xyList.add(new int[] {x,y});
-		beltCapacity = capacity;
-		pickerX = startX;
-		pickerY = startY;
-		packerX = endX;
-		packerY = endY;
+	/**
+	 * @author Leon Grund
+	 * @param Floor Object
+	 * Floor is needed to find location of belt area, cells etc.
+	 */
+	public Belt(Floor F){
+		this.F = F;
+		List<Point> beltArea = F.getBeltArea();
+		Point beltLocation = F.getBeltLocation();
+		Point pickLocation = F.getPickLocation();
+		Point packLocation = F.getPackLocation();
+		
+		itemList = new LinkedList<Item>();
+		beltCapacity = 5;
 	}
+
+	/*---------- G E T T E R S ----------*/
+	/**
+	   * public method to see whether belt is moving
+	   * @return true if belt can be moved, is moving
+	   */
 	
-	//getters
-	public boolean isMoving(){return moves;}
+	
+	
+	
+	public void moveBin(Item I, Point Loc){I.setLocation(Loc);}
+	
+	/**
+	   * public method to see the number of Items on the belt
+	   * @return int, number of Items on belt
+	   */
 	public int numOfItems(){return itemList.size();}
-	public Item getItem(int id){return itemList.get(id);}
-	public ArrayList<Item> getOrder(){return itemList;}
-	//public LinkedList<int[]> coordinates(){return xyList;}
-	//public int x(){return currentX;}
-	//public int y(){return currentY;}
+	
+	/**
+	   * public method to get an item that is on the belt and remove it
+	   * @param ID number of Item
+	   * @return Item with corresponding ID number
+	   */
 	
 	
-	//setters
-	public void addItem(Item item){
-		if(itemList.size()!= beltCapacity)itemList.add(item);
-		item.setID(itemList.indexOf(item));
+	
+	
+	public void doPacker(){
+		if(packLocation == itemList.getFirst().getLocation()){
+			itemList.removeFirst();
+		}
+
 	}
-	//public void nextStation(){;}
-	//remove
-	public void removeItem(Item I){if(beltCapacity != 0)itemList.remove(I.getID());}
+	
+	public void doPicker(Item I){
+		I.setLocation(pickLocation);
+		
+		itemList.addLast(I);}
+	
+	/**
+	   * public method to see all items on the belt
+	   * @return ArrayList of Items, every item on the belt 
+	   */
+	public LinkedList<Item> getOrder(){return itemList;}
+	
+	/**
+	   * public method to see if the next order can start to be fulfilled
+	   * @return true if the next order can start 
+	   */
+	public boolean isOrderComplete(){
+		if(itemList.isEmpty()){return true;}
+		return false;
+		}
+	
+
+	/*---------- S E T T E R S ----------*/
+	
 	public void clearBelt(){itemList.clear();}
 	
+	/**
+	   * the tick() method is where belt moving gets done;
+	   * it will have to move any Bin or Parcel withing the Cell
+	   * of a Belt area to the next Cell, and this has to be done
+	   * on all Points of the beltarea in parallel (not coded yet here)
+	   * 
+	   * after moving the belt, tick() should check to see whether
+	   * or not a Bin has arrived at the Packer - then doPacker() 
+	   * should be called, which removes the Bin, creates a Parcel 
+	   * and puts that Parcel on the belt (in more advanced versions,
+	   * one Bin might make more than one Parcel, if Items are too 
+	   * big to fit entirely into one Parcel). After the Parcel is
+	   * in a Cell at the Packer, the belt will be stopped until some
+	   * later tick when the Packer finishes the Parcel.
+	   * 
+	   * even fancier ideas are to give the Packer a queue of Bins
+	   * and remove each Bin that arrives, taking some non-trivial
+	   * number of ticks to make Parcels, returning them to the 
+	   * beltarea when they are completed
+	   * 
+	   * and a really thorough Belt would simulate the shipping dock,
+	   * collecting a lot of parcels and grouping them into a truck
+	   *
+	   */
+	
+	/**
+	   * public tick belt
+	   * @return tick belt
+	   */
+	  public void tick() {
+		  System.out.println("Start: T I C K belt");
+		  boolean flag;
+			  for(Item I: itemList){
+				  for(Point P: beltArea){
+					 if(flag){moveBin(I,P); flag= false;}
+					 if(P = I.getLocation()) {flag = true;}
+				System.out.println("Moved Item: " + I.getItemID());	  
+			  }
+		  }
+			  doPacker();
+	    }
+	  
+	  /**
+	   * Local method to see whether belt can be moved
+	   
+	  private boolean isMovable() {
+		for (Point p: beltarea) {
+		  Cell c = F.getCell(p);
+		  Object o = c.getContents();
+		  if (o == null) continue;  // skip empty cell
+		  if ((o instanceof Bin) && !((Bin)o).isFinished()) return false;
+		  if ((o instanceof Parcel) && !((Parcel)o).isFinished()) return false;
+		  }
+		return true;  // nothing stops belt from moving
+	    }
+	  */
+	  /**
+	   * Local method doPacker() simulates a Bin arriving to the 
+	   * Packer via the belt moving. 
+	   * 
+	   */
+	
+	  
+	  /**
+	   * Called by Orders to check whether a new Bin can be safely started
+	   */
+	  public boolean binAvailable() {
+		return false;
+	    }
+	  /**
+	   * Called by Orders to simulate a Picker starting a new Bin
+	   */
+	  public Bin getBin() {
+		return null; 
+	    }
 }
