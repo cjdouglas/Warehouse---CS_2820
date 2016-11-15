@@ -17,7 +17,7 @@ public class Shelf {
 	final int maxWeight = 100; // Maximum amount of Item weight shelf can stow
 	int shelfWeight; // Tracks current weight on shelf
 	boolean isFull; // Test whether a shelf is full
-	final int itemsPerShelf = 10;
+	final int shelfCap = 10;
 
 	/*
 	 * Items on shelf will be stored as objects in an arrayList
