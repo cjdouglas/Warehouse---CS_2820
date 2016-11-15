@@ -263,4 +263,66 @@ public class RobotScheduler implements Tickable {
 		// Move each robot 1 step
 		advanceRobots();
 	}
+	
+	/**
+	 * @author Ben East
+	 * @author Liam Crawford
+	 * @return Return true if there are robots at pick locations, and false otherwise.
+	 */
+	public boolean robotsAtPicker() {
+		for(Robot r : robotList) {
+			if(r.getCurrentPosition().equals(floor.getPickLocation())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * @author Ben East
+	 * @author Liam Crawford
+	 * @return Returns true if a robot is at the receiving dock, and false otherwise.
+	 */
+	public boolean robotsAtRestock() {
+		for(Robot r : robotList) {
+			if(r.getCurrentPosition().equals(floor.getReceivingDockLocation())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * @author Ben East
+	 * @author Liam Crawford
+	 * @return Returns an arrayList of the shelves that are at pick locations.
+	 */
+	public ArrayList<Shelf> shelvesAtPicker() {
+		ArrayList<Shelf> shelves = new ArrayList<Shelf>();
+		
+		for(Robot r : robotList) {
+			if(r.getCurrentPosition().equals(floor.getPickLocation())) {
+				shelves.add(r.getCurrentShelf());
+			}
+		}
+		
+		return shelves;
+	}
+	
+	/**
+	 * @author Ben East
+	 * @author Liam Crawford
+	 * @return Returns an arrayList of the shelves that are at receiving docks.
+	 */
+	public ArrayList<Shelf> shelvesAtRestock() {
+		ArrayList<Shelf> shelves = new ArrayList<Shelf>();
+		
+		for(Robot r : robotList) {
+			if(r.getCurrentPosition().equals(floor.getReceivingDockLocation())) {
+				shelves.add(r.getCurrentShelf());
+			}
+		}
+		
+		return shelves;
+	}
 }
