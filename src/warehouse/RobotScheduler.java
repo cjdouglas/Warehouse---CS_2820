@@ -14,9 +14,9 @@ import java.awt.Point;
 public class RobotScheduler implements Tickable {
 	// Instance Variables
 	private ArrayList<Robot> robotList;
-	private HashSet<Shelf> shelvesForOrder;
-	private PriorityQueue<Shelf> shelvesForRestock;
-	private PriorityQueue<HashSet<Shelf>> pendingOrders;
+	private HashSet<Integer> shelvesForOrder;
+	private PriorityQueue<Integer> shelvesForRestock;
+	private PriorityQueue<HashSet<Integer>> pendingOrders;
 	private Floor floor;
 
 	/**
@@ -30,9 +30,9 @@ public class RobotScheduler implements Tickable {
 	public RobotScheduler(Floor f, int numBots) {
 		floor = f;
 		this.robotList = new ArrayList<Robot>();
-		this.shelvesForOrder = new HashSet<Shelf>();
-		this.shelvesForRestock = new PriorityQueue<Shelf>();
-		this.pendingOrders = new PriorityQueue<HashSet<Shelf>>();
+		this.shelvesForOrder = new HashSet<Integer>();
+		this.shelvesForRestock = new PriorityQueue<Integer>();
+		this.pendingOrders = new PriorityQueue<HashSet<Integer>>();
 		createRobots(numBots);
 	}
 
@@ -52,7 +52,7 @@ public class RobotScheduler implements Tickable {
 	 * 
 	 * @param shelvesNeeded
 	 */
-	public void assignOrder(HashSet<Shelf> shelvesNeeded) {
+	public void assignOrder(HashSet<Integer> shelvesNeeded) {
 		// if a robot already has the shelf, reroute to the pick station.
 		if (this.shelvesForOrder.isEmpty()) {
 			for (Robot r : robotList) {
@@ -79,16 +79,16 @@ public class RobotScheduler implements Tickable {
 	 *            that needs to be restocked. The scheduler will assign the
 	 *            shelf on the next tick.
 	 */
-	public void restock(Shelf s) {
+	public void restock(Integer shelfToRestock) {
 		for (Robot r : this.robotList) {
-			if (r.getCurrentShelf().equals(s)) { // Order the robot to restock
+			if (r.getCurrentShelf().equals(shelfToRestock)) { // Order the robot to restock
 				r.setTarget(floor.getReceivingDockLocation());
 				r.setBusy(true);
 				return; // We're done here...
 			}
 		}
 		// Otherwise, add to the list of shelves that need to be restocked.
-		this.shelvesForRestock.add(s);
+		this.shelvesForRestock.add(shelfToRestock);
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class RobotScheduler implements Tickable {
 			r.setTarget(floor.getShelfLocation(this.shelvesForRestock.remove()));
 			r.setBusy(true);
 		} else if (!this.shelvesForOrder.isEmpty()) {
-			Shelf nextShelf = this.shelvesForOrder.iterator().next();
+			Integer nextShelf = this.shelvesForOrder.iterator().next();
 			r.setTarget(floor.getShelfLocation(nextShelf));
 			r.setBusy(true);
 			this.shelvesForOrder.remove(nextShelf);
@@ -134,7 +134,7 @@ public class RobotScheduler implements Tickable {
 					// pick action?
 					r.setTarget(floor.getShelfLocation(r.getCurrentShelf()));
 				} else if (targetPos.equals(floor.getShelfLocation(r.getCurrentShelf()))) { // Handle drop shelf
-					r.dropShelf();
+					floor.placeShelf(r.dropShelf());
 					r.setTarget(floor.getChargeLocation());
 					r.setBusy(true);
 				} else if (r.isBusy() && r.getCurrentShelf() == null) { // Handle grab shelf
@@ -295,12 +295,12 @@ public class RobotScheduler implements Tickable {
 	 * @author Liam Crawford
 	 * @return Returns an arrayList of the shelves that are at pick locations.
 	 */
-	public ArrayList<Shelf> shelvesAtPicker() {
-		ArrayList<Shelf> shelves = new ArrayList<Shelf>();
+	public ArrayList<Integer> shelvesAtPicker() {
+		ArrayList<Integer> shelves = new ArrayList<Integer>();
 		
 		for(Robot r : robotList) {
 			if(r.getCurrentPosition().equals(floor.getPickLocation())) {
-				shelves.add(r.getCurrentShelf());
+				shelves.add(r.getCurrentShelf().getShelfNumber());
 			}
 		}
 		
@@ -312,12 +312,12 @@ public class RobotScheduler implements Tickable {
 	 * @author Liam Crawford
 	 * @return Returns an arrayList of the shelves that are at receiving docks.
 	 */
-	public ArrayList<Shelf> shelvesAtRestock() {
-		ArrayList<Shelf> shelves = new ArrayList<Shelf>();
+	public ArrayList<Integer> shelvesAtRestock() {
+		ArrayList<Integer> shelves = new ArrayList<Integer>();
 		
 		for(Robot r : robotList) {
 			if(r.getCurrentPosition().equals(floor.getReceivingDockLocation())) {
-				shelves.add(r.getCurrentShelf());
+				shelves.add(r.getCurrentShelf().getShelfNumber());
 			}
 		}
 		
