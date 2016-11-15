@@ -77,18 +77,30 @@ public class MasterController implements Tickable {
 		HashSet<Shelf> orderShelves;
 		ArrayList<Shelf> restockShelves;
 		
+		// check to see if items can be added to the bin
+		if(RS.robotsAtPicker()){
+		}
+		
+		// check to see if the next order can start to be fulfilled
+		// when we implement more than one picking station, this will be updated
 		if(B.isOrderComplete()){
 			OS.OrderComplete();
 		}
 		
+		// tick Belt and OrdeingSystem
 		B.tick();
 		OS.tick();
 		
+		// new Order to hand to the scheduler?
 		if(OS.isOrder()){
 			orderShelves = OS.getOrderShelves();
 			RS.assignOrder(orderShelves);
 		}
 		
+		// restock shelves if they're at the right spot
+		if(RS.robotsAtRestock()){
+		
+		// anything need restocked? tell RS
 		if(I.needRestock()){
 			restockShelves = I.getRestockShelves();
 			for(Shelf rs: restockShelves){
@@ -97,6 +109,7 @@ public class MasterController implements Tickable {
 			}
 		}
 		
+		// tick and update RS and V
 		RS.tick();
 		V.setRobotList(RS.getRobotList());
 		V.tick();
