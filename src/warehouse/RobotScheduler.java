@@ -88,6 +88,7 @@ public class RobotScheduler implements Tickable {
 				// make the robot go to the restocking area
 				r.setTarget(floor.getReceivingDockLocation());
 				r.setBusy(true);
+				return;
 			}
 		}
 		// Otherwise, add to the list of shelves that need to be restocked.
