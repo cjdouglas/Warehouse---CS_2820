@@ -226,7 +226,7 @@ public class RobotScheduler implements Tickable {
 		// Prevent robots from landing on pack, belt, or shipping dock locations.
 		if (location.equals(floor.getPackLocation())) {
 			return false;
-		} else if (location.equals(floor.getBeltLocation())) {
+		} else if (floor.getBeltArea().contains(location)) {
 			return false;
 		} else if (location.equals(floor.getShippingDockLocation())) {
 			return false;
