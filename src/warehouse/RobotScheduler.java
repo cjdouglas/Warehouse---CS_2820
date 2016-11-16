@@ -20,12 +20,13 @@ public class RobotScheduler implements Tickable {
 	private Floor floor;
 
 	/**
-	 * @author Ben East Constructs a new robotScheduler object.
-	 * 
+	 * @author Ben East
 	 * @param f
 	 *            The floor of the warehouse to be navigated.
 	 * @param numBots
 	 *            The number of robots to be created.
+	 * 
+	 * 			  Constructs a new robotScheduler object.
 	 */
 	public RobotScheduler(Floor f, int numBots) {
 		floor = f;
@@ -46,17 +47,21 @@ public class RobotScheduler implements Tickable {
 
 	/**
 	 * @author Ben East
+	 * @param shelvesNeeded
+	 * 		   A hashset of shelf numbers needed for the order.
 	 * 
 	 *         Takes a new assignment of shelves, saves the list, and sends
-	 *         robots to the pick location if they're already holding it.
-	 * 
-	 * @param shelvesNeeded
+	 *         robots to the pick location if they're already holding it.	
 	 */
 	public void assignOrder(HashSet<Integer> shelvesNeeded) {
 		// if a robot already has the shelf, reroute to the pick station.
 		if (this.shelvesForOrder.isEmpty()) {
 			for (Robot r : robotList) {
-				Integer currentShelfNumber = r.getCurrentShelf().getShelfNumber();
+				Integer currentShelfNumber = -1;
+				if (r.getCurrentShelf() != null) {
+					currentShelfNumber = r.getCurrentShelf().getShelfNumber();
+				}
+				
 				if (shelvesNeeded.contains(currentShelfNumber)) {
 					r.setTarget(floor.getPickLocation());
 					r.setBusy(true);
@@ -70,7 +75,7 @@ public class RobotScheduler implements Tickable {
 			this.pendingOrders.add(shelvesNeeded);
 		}
 	}
-
+	
 	/**
 	 * @author Ben East
 	 * @param shelfToRestock
@@ -82,14 +87,19 @@ public class RobotScheduler implements Tickable {
 	 */
 	public void restock(Integer shelfToRestock) {
 		for (Robot r : this.robotList) {
-			Integer currentShelfNumber = r.getCurrentShelf().getShelfNumber();
+			Integer currentShelfNumber = -1;
+			
+			if(r.getCurrentShelf() != null) {
+				currentShelfNumber = r.getCurrentShelf().getShelfNumber();
+			}
+			
 			if (currentShelfNumber.equals(shelfToRestock)) { // Order the robot to restock
 				r.setTarget(floor.getReceivingDockLocation());
 				r.setBusy(true);
 				return; // We're done here...
 			}
 		}
-		// Otherwise, add to the list of shelves that need to be restocked.
+		// Add to list of shelves for restock
 		this.shelvesForRestock.add(shelfToRestock);
 	}
 
@@ -101,15 +111,15 @@ public class RobotScheduler implements Tickable {
 	 */
 	protected void assignShelf(Robot r) {
 		// Prioritize restock over the current order.
-		if (!this.shelvesForRestock.isEmpty()) {
+		if (!this.shelvesForRestock.isEmpty()) { // Assign from shelvesForRestock
 			r.setTarget(floor.getShelfLocation(this.shelvesForRestock.remove()));
 			r.setBusy(true);
-		} else if (!this.shelvesForOrder.isEmpty()) {
+		} else if (!this.shelvesForOrder.isEmpty()) { // Assign from shelvesForOrder
 			Integer nextShelf = this.shelvesForOrder.iterator().next();
 			r.setTarget(floor.getShelfLocation(nextShelf));
 			r.setBusy(true);
 			this.shelvesForOrder.remove(nextShelf);
-		} else if (this.shelvesForOrder.isEmpty() && !this.pendingOrders.isEmpty()) {
+		} else if (this.shelvesForOrder.isEmpty() && !this.pendingOrders.isEmpty()) { // Update shelvesForOrder
 			this.shelvesForOrder = this.pendingOrders.remove();
 			assignShelf(r);
 		}
@@ -123,8 +133,14 @@ public class RobotScheduler implements Tickable {
 	 */
 	public void advanceRobots() {
 		for (Robot r : robotList) {
-			Point currentPos = r.getCurrentPosition(), targetPos = r.getTarget();
-			Integer currentShelfNumber = r.getCurrentShelf().getShelfNumber();
+			Integer currentShelfNumber = -1;	// Arbitrary shelf number for null case
+			Point currentPos = r.getCurrentPosition(), targetPos = r.getTarget(),
+					currentShelfLocation = new Point(-1, -1); // Arbitrary shelf location for null case
+			
+			if(r.getCurrentShelf() != null) { // Update if holding a shelf
+				currentShelfNumber = r.getCurrentShelf().getShelfNumber();
+				currentShelfLocation = floor.getShelfLocation(currentShelfNumber);
+			}
 			
 			if (!currentPos.equals(targetPos)) { // keep moving
 				moveTowardTarget(r);
@@ -132,21 +148,19 @@ public class RobotScheduler implements Tickable {
 				if (targetPos.equals(floor.getChargeLocation())) { // Recharge
 					r.recharge();
 					r.setBusy(false);
-					r.setTarget(floor.getShelfLocation(currentShelfNumber));
-				} else if (targetPos.equals(floor.getPickLocation())) { // Handle pick area
-					// pick action?
-					r.setTarget(floor.getShelfLocation(currentShelfNumber));
-				} else if (targetPos.equals(floor.getShelfLocation(currentShelfNumber))) { // Handle drop shelf
+					//r.setTarget() //set to arbitrary point away from charge station.
+				} else if (targetPos.equals(floor.getPickLocation()) && currentShelfNumber != -1) { // Handle pick area
+					r.setTarget(currentShelfLocation);
+				} else if (targetPos.equals(currentShelfLocation) && currentShelfNumber != -1) { // Handle drop shelf
 					floor.placeShelf(r.dropShelf());
 					r.setTarget(floor.getChargeLocation());
 					r.setBusy(true);
-				} else if (r.isBusy() && r.getCurrentShelf() == null) { // Handle grab shelf
+				} else if (r.isBusy() && currentShelfNumber == -1) { // Handle grab shelf
 					// Since shelves have a home position, if this robot was
 					// assigned the shelf, it must be on the ground.
 					r.grabShelf(floor.getShelfAt(currentPos));
-				} else if (r.getCurrentShelf() != null && targetPos.equals(floor.getReceivingDockLocation())) { // Handle restock
-					// restock action?
-					r.setTarget(floor.getShelfLocation(currentShelfNumber));
+				} else if (currentShelfNumber != -1 && targetPos.equals(floor.getReceivingDockLocation())) { // Handle restock
+					r.setTarget(currentShelfLocation);
 				}
 			}
 		}
@@ -154,46 +168,48 @@ public class RobotScheduler implements Tickable {
 
 	// TODO Update movement to make use of highways and shelving areas.
 	/**
-	 * @author Ben East Determines which direction the robot should move, and
-	 *         moves there if not occupied.
-	 * 
+	 * @author Ben East
 	 * @param r
 	 *            The robot to be moved.
+	 *            
+	 *            Determines which direction the robot should move, and
+	 *            moves there if not occupied.
 	 */
 	protected void moveTowardTarget(Robot r) {
-		Point currentPos = r.getCurrentPosition(), target = r.getTarget();
-
+		double currentX = r.getCurrentPosition().getX(), currentY = r.getCurrentPosition().getY(),
+				targetX = r.getTarget().getX(), targetY = r.getTarget().getY();
+		
 		// Move right
-		if (currentPos.getX() < target.getX()) {
-			Point potentialLocation = new Point((int) currentPos.getX() + 1, (int) currentPos.getY());
-			if (notOccupied(potentialLocation) && currentPos.getX() != floor.getWidth()) {
+		if (currentX < targetX) {
+			Point potentialLocation = new Point((int) currentX + 1, (int) currentY);
+			if (notOccupied(potentialLocation) && currentX != floor.getWidth()) {
 				r.moveRight();
 				return; // Return to limit to one movement per method call.
 			}
 		}
 
 		// Move left
-		if (currentPos.getX() > target.getX()) {
-			Point potentialLocation = new Point((int) currentPos.getX() - 1, (int) currentPos.getY());
-			if (notOccupied(potentialLocation) && currentPos.getX() != 0) {
+		if (currentX > targetX) {
+			Point potentialLocation = new Point((int) currentX - 1, (int) currentY);
+			if (notOccupied(potentialLocation) && currentX != 0) {
 				r.moveLeft();
 				return; // Return to limit to one movement per method call.
 			}
 		}
 
 		// Move up
-		if (currentPos.getY() < target.getY()) {
-			Point potentialLocation = new Point((int) currentPos.getX(), (int) currentPos.getY() + 1);
-			if (notOccupied(potentialLocation) && currentPos.getY() != floor.getHeight()) {
+		if (currentY < targetY) {
+			Point potentialLocation = new Point((int) currentX, (int) currentY + 1);
+			if (notOccupied(potentialLocation) && currentY != floor.getHeight()) {
 				r.moveUp();
 				return; // Return to limit to one movement per method call.
 			}
 		}
 
 		// Move down
-		if (currentPos.getY() > target.getY()) {
-			Point potentialLocation = new Point((int) currentPos.getX(), (int) currentPos.getY() - 1);
-			if (notOccupied(potentialLocation) && currentPos.getY() != 0) {
+		if (currentY > targetY) {
+			Point potentialLocation = new Point((int) currentX, (int) currentY - 1);
+			if (notOccupied(potentialLocation) && currentY != 0) {
 				r.moveDown();
 				return; // Return to limit to one movement per method call.
 			}
@@ -207,22 +223,31 @@ public class RobotScheduler implements Tickable {
 	 * @return Returns true if no robot is at the location, and false otherwise.
 	 */
 	protected boolean notOccupied(Point location) {
+		// Prevent robots from landing on pack, belt, or shipping dock locations.
+		if (location.equals(floor.getPackLocation())) {
+			return false;
+		} else if (location.equals(floor.getBeltLocation())) {
+			return false;
+		} else if (location.equals(floor.getShippingDockLocation())) {
+			return false;
+		}
+		
 		for (Robot r : robotList) {
 			if (r.getCurrentPosition().equals(location)) {
 				return false;
 			}
 		}
+		
 		return true;
 	}
 
 	/**
 	 * @author Ben East
-	 * 
-	 *         Creates all of the robots for the warehouse. For use in the
-	 *         constructor only.
-	 * 
 	 * @param numBots
 	 *            The number of robots to be created.
+	 *            
+	 *            Creates all of the robots for the warehouse. For use in the
+	 *            constructor only.
 	 */
 	protected void createRobots(int numBots) {
 		for (int i = 0; i < numBots; ++i) {
@@ -241,6 +266,7 @@ public class RobotScheduler implements Tickable {
 		if (this.shelvesForRestock.contains(shelfNum)) {
 			return true;
 		}
+		
 		for (Robot r : robotList) {
 			if (r.getCurrentShelf().equals(shelfNum) && r.getTarget().equals(floor.getReceivingDockLocation())) {
 				return true;
@@ -276,6 +302,7 @@ public class RobotScheduler implements Tickable {
 				return true;
 			}
 		}
+		
 		return false;
 	}
 	
@@ -290,6 +317,7 @@ public class RobotScheduler implements Tickable {
 				return true;
 			}
 		}
+		
 		return false;
 	}
 	
