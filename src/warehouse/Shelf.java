@@ -146,6 +146,14 @@ public class Shelf {
 
 		return shelf;
 	}
+	
+	/**
+	 * Returns a String representation of this Shelf object for testing purposes
+	 * @return A String representation of this Shelf object
+	 */
+	public String toString() {
+		return "" + shelfNumber;
+	}
 
 	public static void main(String[] args) {
 		Item item1 = new Item(0, "hat", 5.00, 55);

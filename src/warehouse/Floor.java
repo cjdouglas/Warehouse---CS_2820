@@ -20,7 +20,7 @@
  * Open Space = Open road Space
 
 	 0 1 2 3 4 5 6 7
-  0 | | | | |P|K|B|H|
+  0 | | |P|B|B|B|K|H|
   1 | | | | | | | | |
   2 | | |S| | |S| | |
   3 | | |S| | |S| | |
@@ -36,6 +36,7 @@ package warehouse;
 
 import java.util.List;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -43,13 +44,17 @@ public class Floor {
     
 	private final int width = 8;
 	private final int height = 8;
+	private final int numShelves = 8;
 	
-	private HashMap<Integer, Point> locations;
+	// private HashMap<Integer, Point> locations;
+	private Shelf[] shelves;
+	private Point[] locations;
+	
 	private List<Point> beltArea;
 	private Point chargeLocation;
 	private Point pickLocation;
 	private Point packLocation;
-	private Point beltLocation;
+	
 	private Point shippingDock;
 	private Point receivingDock;
 	
@@ -57,46 +62,83 @@ public class Floor {
 	 * Initializer for the Floor class
 	 * @param numShelves The number of shelves being passed into the Floor
 	 */
-	public Floor() {
-		locations = new HashMap<>();
-		initFloor();
+	public Floor(List<Shelf> shelfList) {
+		shelves = new Shelf[8];
+		locations = new Point[8];
+		beltArea = new ArrayList<>();
+
+		initFloor(shelfList);
 	}	
 	
 	/**
 	 * Initializes the locations for the floor
 	 */
-	private void initFloor() {
+	private void initFloor(List<Shelf> shelfList) {
+		
+		for (int i = 0; i < numShelves; i++) {
+			shelves[i] = shelfList.get(i);
+		}
 		
 		int counter = 0;
-		
 		for (int i = 2; i < 6; i++) {
-			locations.put(counter++, new Point(2, i));
-			locations.put(counter++, new Point(5, i));
+			locations[counter++] = new Point(2, i);
+			locations[counter++] = new Point(5, i);
 		}
 		
 		chargeLocation = new Point(0, height - 1);
 		//--------BELT AREA-----------
-		pickLocation = new Point(0, 4);
-		packLocation = new Point(0, 5);
-		beltLocation = new Point(0, 6);
+		pickLocation = new Point(0, 2);
+		packLocation = new Point(0, 6);
 		beltArea.add(pickLocation);
-		beltArea.add(new Point(0,3));
-		beltArea.add(new Point(1,3));
-		beltArea.add(new Point(1,4));
-		beltArea.add(new Point(1,5));
+		beltArea.add(new Point(0, 3));
+		beltArea.add(new Point(0, 4));
+		beltArea.add(new Point(0, 5));
 		beltArea.add(packLocation);
 		//----------------------------
-		shippingDock = new Point(0, 7);
+		shippingDock = new Point(0, width - 1);
 		receivingDock = new Point(width - 1, height - 1);
 	}
 	
 	/**
-	 * Returns the location of a given shelf based off its id
-	 * @param shelf The shelf to find the location for
-	 * @return The location of a given shelf object
+	 * Returns the location of a given shelf, returns null if the shelf cannot be found
+	 * @param shelf The shelf to return the location for
+	 * @return The Location of a given shelf
 	 */
-	public Point getShelfLocation(Shelf shelf) {
-		return locations.get(shelf.getShelfNumber());
+	public Point getShelfLocation(int shelfId) {
+		for (int i = 0; i < numShelves; i++) {
+			if (shelves[i].getShelfNumber() == shelfId) {
+				return locations[i];
+			}
+		}
+		
+		return null;
+	}
+	
+	public Shelf getShelfAt(Point loc) {
+		for (int i = 0; i < numShelves; i++) {
+			if (locations[i].equals(loc)) {
+				Shelf shelf = shelves[i];
+				shelves[i] = null;
+				return shelf;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Places the given Shelf into the first open location on the Floor
+	 * @param shelf The shelf to place back onto the Floor
+	 */
+	public boolean placeShelf(Shelf shelf) {
+		for (int i = 0; i < numShelves; i++) {
+			if (shelves[i] == null) {
+				shelves[i] = shelf;
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -121,14 +163,6 @@ public class Floor {
 	 */
 	public Point getPackLocation() {
 		return packLocation;
-	}
-	
-	/**
-	 * Returns the Point representing the belt location
-	 * @return The Point representing the belt location
-	 */
-	public Point getBeltLocation() {
-		return beltLocation;
 	}
 	
 	/**
@@ -162,16 +196,24 @@ public class Floor {
 	public int getHeight() {
 		return height;
 	}
-	
-	public Set<Integer> keySet() {
-		return locations.keySet();
-	}
-	
-	public Point locAt(int x) {
-		return locations.get(x);
-	}
 
+	/**
+	 * Returns a list of points related to the Belt Area
+	 * @return A list of points related to the Belt Area
+	 */
 	public List<Point> getBeltArea() {
 		return beltArea;
+	}
+	
+	/**
+	 * Returns the array of all the shelves currently placed on the floor
+	 * @return Array of all the shelves currently placed on the floor
+	 */
+	public Shelf[] getShelves() {
+		return shelves;
+	}
+	
+	public Point[] getLocations() {
+		return locations;
 	}
 }

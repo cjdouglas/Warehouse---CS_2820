@@ -1,34 +1,47 @@
 package warehouse;
 
 import java.awt.Point;
+import java.util.ArrayList;
 
 import org.junit.*;
 
 public class FloorTest {
-
+	
 	@Test
 	public void RunFloorTests() {
-		Floor floor = new Floor();
+		int numShelves = 8;
+		ArrayList<Shelf> shelves = new ArrayList<Shelf>();
 		
-		for (int x : floor.keySet()) {
-			System.out.println(floor.locAt(x));
+		for (int i = 0; i < numShelves; i++) {
+			shelves.add(new Shelf(i));
 		}
 		
-		/*
-		 * chargeLocation = new Point(0, height - 1);
-		pickLocation = new Point(0, 4);
-		packLocation = new Point(0, 5);
-		beltLocation = new Point(0, 6);
-		shippingDock = new Point(0, 7);
-		receivingDock = new Point(width - 1, height - 1);
-		 */
+		Floor floor = new Floor(shelves);
+		Shelf[] shelfArr = floor.getShelves();
+		Point[] locArr = floor.getLocations();
 		
-		Assert.assertEquals(new Point(0, floor.getHeight() - 1), floor.getChargeLocation());
-		Assert.assertEquals(new Point(0, 4), floor.getPickLocation());
-		Assert.assertEquals(new Point(0, 5), floor.getPackLocation());
-		Assert.assertEquals(new Point(0, 6), floor.getBeltLocation());
-		Assert.assertEquals(new Point(0, 7), floor.getShippingDockLocation());
-		Assert.assertEquals(new Point(floor.getWidth() - 1, floor.getHeight() - 1), floor.getReceivingDockLocation());
+		printArray(shelfArr);
+		System.out.println();
+		System.out.println("Removing shelf at (2, 4)");
+		System.out.println("Removing shelf at (2, 2)");
+		System.out.println();
+		
+		Shelf temp = floor.getShelfAt(new Point(2, 4));
+		Shelf temp2 = floor.getShelfAt(new Point(2, 2));
+		
+		printArray(shelfArr);
+		System.out.println();
+		System.out.println("Returning first shelf");
+		floor.placeShelf(temp);
+		System.out.println("Returning second shelf");
+		floor.placeShelf(temp2);
+		
+		printArray(shelfArr);
 	}
 	
+	private void printArray(Object[] arr) {
+		for (Object obj : arr) {
+			System.out.println(obj);
+		}
+	}
 }
